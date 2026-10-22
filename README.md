@@ -16,6 +16,7 @@ public on upload — publishing is always an explicit action.
 - Tailwind CSS 4 + shadcn/ui (Base UI)
 - Supabase Auth + PostgreSQL + Row Level Security
 - `unified` / `remark` / `rehype` for Markdown, rendered as React elements
+- `mermaid` for diagrams, drawn in the browser on demand
 - Vitest for unit and security tests
 
 ## Requirements
@@ -110,8 +111,11 @@ instead of crashing.
 
 - Raw HTML in Markdown is **never parsed** (`remark-rehype` runs without
   `allowDangerousHtml`). The tree is also passed through `rehype-sanitize`.
-- The app renders React elements with `hast-util-to-jsx-runtime`; it does not use
-  `dangerouslySetInnerHTML`.
+- The app renders React elements with `hast-util-to-jsx-runtime`. The single
+  place that uses `dangerouslySetInnerHTML` is the Mermaid diagram: the SVG is
+  built by Mermaid itself from a source that the pipeline keeps as plain text,
+  and Mermaid runs that SVG through DOMPurify (`securityLevel: "strict"`) before
+  returning it.
 - `javascript:`, `data:`, and `file:` URLs are removed by the sanitizer. External links
   get `rel="noopener noreferrer nofollow"`.
 - Uploads are validated twice: extension/size/UTF-8 in the browser, then size, title,
@@ -158,6 +162,27 @@ and keyboard navigation (`←` previous, `→` next, `Esc` leaves the presentati
 - The sections are served by `/p/[slug]/sections`, which only answers for published
   documents.
 
+## Diagrams
+
+A fenced code block with the `mermaid` language is drawn as a diagram instead of
+being shown as code.
+
+- **The block is found in the Markdown pipeline.** A `pre > code.language-mermaid`
+  block becomes a `mermaid-diagram` element that holds the source as plain text.
+  The transform runs after the sanitizer, in the same trusted stage as the
+  heading anchors and the syntax highlighting, and before the highlighter, so a
+  diagram is never sent to highlight.js.
+- **Mermaid is loaded on demand.** The library is imported by the browser only
+  when a document actually contains a diagram, so a document without diagrams
+  never downloads it. The same component is used by the public viewer, the
+  dashboard preview, and the presentation mode.
+- **The source stays text.** `%%{ ... }%%` directives are removed, because a
+  directive can rewrite the Mermaid configuration. The diagram is drawn with
+  `securityLevel: "strict"`, which sanitizes the SVG with DOMPurify and turns off
+  scripts, click handlers, and HTML labels.
+- **A broken diagram does not lose content.** When Mermaid cannot draw the
+  diagram, the reader sees a short error message and the original source.
+
 ## Publishing, deleting, and caching
 
 - `publishDocumentAction` / `unpublishDocumentAction` / `deleteDocumentAction` are Server
@@ -183,6 +208,9 @@ XSS payloads (script tags, event handlers, `javascript:` links, iframes, SVG, da
 oversized documents). It also covers the publishing helpers: public URLs, meta
 descriptions, Open Graph metadata, and cache tags, plus the presentation rules: heading
 splits, the fallback split, and the guarantee that splitting never changes the content.
+Mermaid code blocks are covered too: they become a diagram element, they keep their
+source as plain text, their directives are removed, and they do not change how the
+document is split into sections.
 
 ### Live RLS test
 

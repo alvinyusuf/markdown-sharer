@@ -1,6 +1,7 @@
 import type { ComponentProps } from "react";
 
 import { CodeBlock } from "@/components/markdown/code-block";
+import { MermaidDiagram } from "@/components/markdown/mermaid-diagram";
 
 function heading(level: 1 | 2 | 3 | 4 | 5 | 6) {
   const Tag = `h${level}` as const;
@@ -34,6 +35,10 @@ export const markdownComponents = {
   h5: heading(5),
   h6: heading(6),
   pre: CodeBlock,
+  // A Mermaid code block is replaced by a diagram element in the Markdown
+  // pipeline. The element name is not a valid HTML tag, so it can only come
+  // from that transform.
+  "mermaid-diagram": MermaidDiagram,
   table: ({ children, ...props }: ComponentProps<"table">) => (
     <div className="table-wrap">
       <table {...props}>{children}</table>

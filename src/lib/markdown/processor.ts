@@ -8,6 +8,7 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import type { Root } from "hast";
 
+import { rehypeMermaid } from "@/lib/markdown/rehype-mermaid";
 import { MAX_CONTENT_BYTES, utf8ByteLength } from "@/lib/validation/document";
 
 /**
@@ -15,6 +16,10 @@ import { MAX_CONTENT_BYTES, utf8ByteLength } from "@/lib/validation/document";
  * tests. Raw HTML is never parsed (remark-rehype drops it), and the resulting
  * tree is sanitized again as defence in depth before any highlighting or
  * generated anchor attributes are added.
+ *
+ * The Mermaid transform also runs after the sanitizer, in that trusted stage.
+ * It only replaces a code block with a diagram element that holds the source
+ * as plain text, so the tree can never carry more than the sanitizer allows.
  */
 function createProcessor() {
   return unified()
@@ -22,6 +27,7 @@ function createProcessor() {
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: false })
     .use(rehypeSanitize, defaultSchema)
+    .use(rehypeMermaid)
     .use(rehypeSlug)
     .use(rehypeExternalLinks, {
       target: "_blank",

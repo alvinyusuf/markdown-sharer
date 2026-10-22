@@ -172,6 +172,7 @@ Preview harus mendukung:
 - Blockquote.
 - Inline code dan fenced code block.
 - Syntax highlighting.
+- Diagram Mermaid pada fenced code block `mermaid`.
 - Tables.
 - Horizontal rules.
 - Links.
@@ -440,10 +441,13 @@ Komponen utama:
 - `remark-rehype` untuk transformasi Markdown AST menjadi HTML AST.
 - `rehype-sanitize` untuk sanitasi HTML.
 - `rehype-highlight` atau solusi syntax highlighting yang kompatibel.
+- Transform Mermaid sendiri (`rehype-mermaid`) untuk mengubah fenced code block `mermaid` menjadi elemen diagram.
 
 Implementasi final harus memverifikasi kompatibilitas versi dan urutan plugin.
 
 **Security requirement:** raw HTML dalam Markdown harus dinonaktifkan atau diproses melalui sanitasi yang ketat. Jangan memasukkan HTML mentah dari dokumen menggunakan `dangerouslySetInnerHTML` tanpa pipeline sanitasi yang teruji.
+
+**Exception Mermaid:** diagram digambar di browser oleh library Mermaid, sehingga SVG hasil render perlu disisipkan ke DOM. Exception ini aman karena sumber diagram disimpan sebagai plain text (tidak pernah HTML), directive `%%{ ... }%%` dibuang sebelum render, dan Mermaid dijalankan dengan `securityLevel: "strict"` yang mem-sanitasi SVG dengan DOMPurify serta menonaktifkan script, click handler, dan HTML label.
 
 ### 7.3 Backend and Database
 
@@ -923,7 +927,6 @@ MVP dianggap selesai ketika seluruh kondisi berikut terpenuhi.
 Setelah MVP stabil, fitur berikut dapat dipertimbangkan:
 - Markdown editor langsung di browser.
 - Table of contents otomatis.
-- Mermaid diagram rendering dengan sanitasi yang sesuai.
 - Download source Markdown.
 - Export ke PDF.
 - Custom theme dan dark mode.

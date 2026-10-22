@@ -316,6 +316,28 @@
     scrollbar-width: thin;
     scrollbar-color: oklch(0.82 0.006 90) transparent;
   }
+
+  .mermaid-figure {
+    margin-block: 1.75rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background: var(--card);
+  }
+
+  .mermaid-figure figcaption {
+    color: var(--muted-foreground);
+  }
+
+  .mermaid-figure-canvas {
+    display: flex;
+    justify-content: center;
+  }
+
+  .mermaid-figure-canvas svg {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
