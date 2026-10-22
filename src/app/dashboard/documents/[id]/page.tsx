@@ -5,18 +5,21 @@ import { connection } from "next/server";
 import {
   ArrowLeft,
   CalendarDays,
-  ExternalLink,
   FilePenLine,
   FileText,
   Hash,
   Info,
+  Link2,
 } from "lucide-react";
 
+import { CopyLinkButton } from "@/components/documents/copy-link-button";
 import { DocumentDetailsForm } from "@/components/documents/document-details-form";
+import { PublishToggle } from "@/components/documents/publish-toggle";
 import { SetupNotice } from "@/components/system/setup-notice";
 import { Badge } from "@/components/ui/badge";
 import { hasSupabaseEnv } from "@/config/env";
 import { getCurrentUser } from "@/lib/auth/session";
+import { publicDocumentUrl } from "@/lib/documents/metadata";
 import { getOwnDocument } from "@/lib/documents/queries";
 import { renderMarkdown } from "@/lib/markdown/render";
 import { formatBytes, utf8ByteLength } from "@/lib/validation/document";
@@ -56,6 +59,7 @@ export default async function DocumentPreviewPage({
   }
 
   const rendered = await renderMarkdown(document.content);
+  const publicUrl = publicDocumentUrl(document.slug);
 
   return (
     <div className="space-y-6">
@@ -113,6 +117,59 @@ export default async function DocumentPreviewPage({
 
         <aside className="space-y-4">
           <div className="rounded-2xl border bg-card p-5">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold">Publishing</h2>
+              <Badge
+                variant={document.status === "published" ? "default" : "secondary"}
+                className="capitalize"
+              >
+                {document.status}
+              </Badge>
+            </div>
+
+            {document.status === "published" ? (
+              <>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  Anyone with this link can read the document. Unpublishing keeps the
+                  content and the link reserved for you.
+                </p>
+                <div className="mt-4 flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2">
+                  <Link2 className="size-3.5 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate font-mono text-[11px]">
+                    {publicUrl}
+                  </span>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <CopyLinkButton url={publicUrl} size="sm" />
+                  <LinkButton size="sm" href={`/p/${document.slug}`}>
+                    View
+                  </LinkButton>
+                  <PublishToggle
+                    documentId={document.id}
+                    status={document.status}
+                    size="sm"
+                    variant="outline"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  This document is a draft. Publish it to get a public link you can share
+                  with anyone, no account required.
+                </p>
+                <div className="mt-4">
+                  <PublishToggle
+                    documentId={document.id}
+                    status={document.status}
+                    size="sm"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="rounded-2xl border bg-card p-5">
             <h2 className="text-sm font-semibold">Document details</h2>
             <p className="mt-1 mb-4 text-xs leading-relaxed text-muted-foreground">
               Changing the title keeps the same document and slug.
@@ -151,16 +208,6 @@ export default async function DocumentPreviewPage({
                 <dd>{formatDateTime(document.created_at)}</dd>
               </div>
             </dl>
-            <div className="mt-4 rounded-lg border border-amber-200/80 bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-900">
-              <p className="flex items-center gap-1.5 font-medium">
-                <ExternalLink className="size-3" />
-                Not public yet
-              </p>
-              <p className="mt-1 text-amber-900/80">
-                Publishing and public links arrive in the next milestone. Only you can
-                open this draft.
-              </p>
-            </div>
           </div>
         </aside>
       </div>

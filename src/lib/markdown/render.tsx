@@ -1,6 +1,7 @@
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { toJsxRuntime } from "hast-util-to-jsx-runtime";
 import type { ComponentProps, ReactNode } from "react";
+import type { Root } from "hast";
 
 import { CodeBlock } from "@/components/markdown/code-block";
 import { processMarkdown } from "@/lib/markdown/processor";
@@ -62,13 +63,17 @@ const components = {
   ),
 };
 
-export async function renderMarkdown(markdown: string): Promise<ReactNode> {
-  const tree = await processMarkdown(markdown);
-
+export function renderTree(tree: Root): ReactNode {
   return toJsxRuntime(tree, {
     Fragment,
     jsx,
     jsxs,
     components,
   });
+}
+
+export async function renderMarkdown(markdown: string): Promise<ReactNode> {
+  const tree = await processMarkdown(markdown);
+
+  return renderTree(tree);
 }

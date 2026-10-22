@@ -1,12 +1,12 @@
 # MarkdownShare
 
-Upload a Markdown file, preview the rendered document, and keep every draft in one
-place. This repository currently implements **Phase 1–2** of
+Upload a Markdown file, preview the rendered document, and share it with a link.
+This repository currently implements **Phase 1–3** of
 [`specification.md`](./specification.md): foundation, authentication, Markdown upload,
-persistent drafts, preview, and a tested sanitization pipeline.
+persistent drafts, preview, publishing, and the public viewer at `/p/[slug]`.
 
-Public links (`/p/[slug]`), publishing, presentation mode, and delete/unpublish are the
-next milestones. The app never makes a document public on upload.
+Presentation mode and document deletion are the next milestones. The app never makes a
+document public on upload — publishing is always an explicit action.
 
 ## Stack
 
@@ -97,10 +97,12 @@ instead of crashing.
 | `/`                              | Public | Marketing page with a real rendered sample |
 | `/login`, `/signup`              | Public | Email/password auth                        |
 | `/auth/callback`                 | Public | Code/token exchange for email links        |
-| `/dashboard`                     | Owner  | List drafts                                |
+| `/dashboard`                     | Owner  | List documents, publish and unpublish      |
 | `/dashboard/new`                 | Owner  | Upload and create a draft                  |
-| `/dashboard/documents/[id]`      | Owner  | Preview, edit metadata, inspect slug       |
+| `/dashboard/documents/[id]`      | Owner  | Preview, edit metadata, publish, copy link |
 | `/dashboard/documents/[id]/edit` | Owner  | Replace or edit Markdown source            |
+| `/p/[slug]`                      | Public | Published document, readable without login |
+| `/p/[slug]/opengraph-image`      | Public | Social preview image for a document        |
 
 ## Security model
 
@@ -113,8 +115,10 @@ instead of crashing.
 - Uploads are validated twice: extension/size/UTF-8 in the browser, then size, title,
   description, and content again in the Server Action.
 - Every query and mutation scopes by `owner_id`; RLS is the second boundary.
-- Public rendering will use a cookieless Supabase client so it can never see a draft
-  belonging to a signed-in visitor.
+- Public rendering uses a cookieless Supabase client so it can never see a draft
+  belonging to a signed-in visitor. The public response never selects `owner_id`.
+- The proxy rejects `/p/{slug}` for documents that are not published, so a missing or
+  unpublished link answers with a real `404` instead of a streamed `200`.
 - No external URL is fetched server-side, so Markdown images cannot become an SSRF
   vector.
 
@@ -128,6 +132,18 @@ instead of crashing.
 - `updated_at` is maintained by a trigger; `owner_id` is immutable.
 - RLS: owners read all their own rows; anonymous users read only `published` rows.
 
+## Publishing and caching
+
+- `publishDocumentAction` / `unpublishDocumentAction` are Server Actions. They verify
+  the session, the ownership, and the current status before touching the row, and they
+  set `published_at` together with the status so the database check constraint holds.
+- The public document and its rendered Markdown tree are cached with `"use cache"` and
+  a `document:{slug}` tag. Every mutation that changes what a reader sees
+  (publish, unpublish, content, metadata) calls `updateTag()` for that tag, so the next
+  reader gets the new content — or a 404 after an unpublish.
+- The slug never changes after a document is created, so the public URL stays stable
+  across updates.
+
 ## Tests
 
 ```bash
@@ -137,7 +153,8 @@ pnpm test
 Coverage includes file validation, UTF-8 decoding, slug generation, safe redirects,
 auth schema validation, GFM rendering, heading anchors, external link attributes, and
 XSS payloads (script tags, event handlers, `javascript:` links, iframes, SVG, data URLs,
-oversized documents).
+oversized documents). It also covers the publishing helpers: public URLs, meta
+descriptions, Open Graph metadata, and cache tags.
 
 ### Live RLS test
 
@@ -151,7 +168,8 @@ pnpm verify:rls
 
 The script uses only the anon key. It verifies that drafts are invisible to anonymous
 users and other accounts, that cross-user updates/deletes do nothing, and that
-publish/unpublish changes anonymous visibility.
+publish/unpublish changes anonymous visibility — including reads by slug, which is how
+the public viewer looks a document up.
 
 ## Project structure
 
@@ -162,13 +180,14 @@ src/
     (auth)/                 login, signup
     auth/callback/          Supabase email link exchange
     dashboard/              owner-only pages
+    p/[slug]/               public document viewer + Open Graph image
     error.tsx, not-found.tsx, robots.ts
   components/
     auth/  documents/  layout/  markdown/  system/  ui/
   config/env.ts
   lib/
     auth/ documents/ markdown/ slug/ supabase/ utils/ validation/
-  proxy.ts                  session refresh + route protection
+  proxy.ts                  session refresh, route protection, public link guard
   types/database.ts
 supabase/
   config.toml
@@ -178,12 +197,9 @@ tests/
 
 ## Next milestones
 
-1. **Publish and public viewer** — slug-based `/p/[slug]`, canonical/Open Graph metadata,
-   copy link, unpublish.
-2. **Presentation mode** — split by H1/H2 with fallback, keyboard navigation, fullscreen.
-3. **Dashboard management** — delete with confirmation, pagination, status filters.
-4. **Hardening** — live RLS integration tests, Playwright E2E, rate limiting upgrade,
-   deployment checklist.
+1. **Presentation mode** — split by H1/H2 with fallback, keyboard navigation, fullscreen.
+2. **Dashboard management** — delete with confirmation, pagination, status filters.
+3. **Hardening** — Playwright E2E in CI, rate limiting upgrade, deployment checklist.
 
 ## Deployment
 

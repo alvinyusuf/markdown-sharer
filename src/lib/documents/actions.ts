@@ -1,16 +1,18 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import type { ActionResult } from "@/lib/action-result";
 import { getCurrentUser } from "@/lib/auth/session";
+import { documentCacheTag } from "@/lib/documents/cache";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { generateSlug, isValidSlug } from "@/lib/slug/slug";
 import { createClient } from "@/lib/supabase/server";
 import type { CreateDocumentInput } from "@/lib/validation/schemas";
 import {
   createDocumentInputSchema,
+  documentIdSchema,
   updateDocumentContentSchema,
   updateDocumentMetadataSchema,
 } from "@/lib/validation/schemas";
@@ -38,6 +40,18 @@ function mapDatabaseError(message: string): string {
   }
 
   return "We couldn't save this document. Try again in a moment.";
+}
+
+/**
+ * Makes sure the public URL shows the current state of the document.
+ *
+ * `updateTag` expires the cached public document so the next reader gets the
+ * new content, or a 404 after an unpublish. `revalidatePath` refreshes the
+ * route itself.
+ */
+function revalidatePublicDocument(slug: string) {
+  updateTag(documentCacheTag(slug));
+  revalidatePath(`/p/${slug}`);
 }
 
 export async function createDraftAction(
@@ -150,6 +164,7 @@ export async function updateDocumentMetadataAction(input: {
   }
 
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("documents")
     .update({
@@ -158,7 +173,7 @@ export async function updateDocumentMetadataAction(input: {
     })
     .eq("id", parsed.data.documentId)
     .eq("owner_id", user.id)
-    .select("id")
+    .select("id, slug")
     .maybeSingle();
 
   if (error) {
@@ -171,6 +186,7 @@ export async function updateDocumentMetadataAction(input: {
 
   revalidatePath("/dashboard");
   revalidatePath(`/dashboard/documents/${parsed.data.documentId}`);
+  revalidatePublicDocument(data.slug);
 
   return { ok: true, message: "Document details saved." };
 }
@@ -200,7 +216,7 @@ export async function updateDocumentContentAction(input: {
     .update({ content: parsed.data.content })
     .eq("id", parsed.data.documentId)
     .eq("owner_id", user.id)
-    .select("id")
+    .select("id, slug")
     .maybeSingle();
 
   if (error) {
@@ -213,6 +229,171 @@ export async function updateDocumentContentAction(input: {
 
   revalidatePath("/dashboard");
   revalidatePath(`/dashboard/documents/${parsed.data.documentId}`);
+  revalidatePublicDocument(data.slug);
 
   return { ok: true, message: "Content saved." };
+}
+
+export async function publishDocumentAction(input: {
+  documentId: string;
+}): Promise<ActionResult> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { ok: false, message: "Your session expired. Sign in again." };
+  }
+
+  const parsed = documentIdSchema.safeParse(input.documentId);
+
+  if (!parsed.success) {
+    return { ok: false, message: "That document ID is not valid." };
+  }
+
+  const limit = checkRateLimit(`publish:${user.id}`, {
+    limit: 20,
+    windowMs: 10 * 60 * 1000,
+  });
+
+  if (!limit.ok) {
+    return {
+      ok: false,
+      message: "You're publishing too quickly. Wait a few minutes and try again.",
+    };
+  }
+
+  const supabase = await createClient();
+
+  const { data: owned, error: ownedError } = await supabase
+    .from("documents")
+    .select("id, slug, status")
+    .eq("id", parsed.data)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (ownedError) {
+    return { ok: false, message: "We couldn't load this document. Try again." };
+  }
+
+  if (!owned) {
+    return { ok: false, message: "Document not found." };
+  }
+
+  if (owned.status === "published") {
+    return {
+      ok: true,
+      message: "This document is already published.",
+      documentId: owned.id,
+      slug: owned.slug,
+    };
+  }
+
+  const { data, error } = await supabase
+    .from("documents")
+    .update({
+      status: "published",
+      published_at: new Date().toISOString(),
+    })
+    .eq("id", owned.id)
+    .eq("owner_id", user.id)
+    .eq("status", "draft")
+    .select("id, slug")
+    .maybeSingle();
+
+  if (error) {
+    return { ok: false, message: mapDatabaseError(error.message) };
+  }
+
+  if (!data) {
+    return {
+      ok: false,
+      message: "We couldn't publish this document. Try again in a moment.",
+    };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/dashboard/documents/${owned.id}`);
+  revalidatePublicDocument(data.slug);
+
+  return {
+    ok: true,
+    message: "Published. Your document is now public.",
+    documentId: data.id,
+    slug: data.slug,
+  };
+}
+
+export async function unpublishDocumentAction(input: {
+  documentId: string;
+}): Promise<ActionResult> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { ok: false, message: "Your session expired. Sign in again." };
+  }
+
+  const parsed = documentIdSchema.safeParse(input.documentId);
+
+  if (!parsed.success) {
+    return { ok: false, message: "That document ID is not valid." };
+  }
+
+  const supabase = await createClient();
+
+  const { data: owned, error: ownedError } = await supabase
+    .from("documents")
+    .select("id, slug, status")
+    .eq("id", parsed.data)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (ownedError) {
+    return { ok: false, message: "We couldn't load this document. Try again." };
+  }
+
+  if (!owned) {
+    return { ok: false, message: "Document not found." };
+  }
+
+  if (owned.status === "draft") {
+    return {
+      ok: true,
+      message: "This document is already a draft.",
+      documentId: owned.id,
+      slug: owned.slug,
+    };
+  }
+
+  const { data, error } = await supabase
+    .from("documents")
+    .update({
+      status: "draft",
+      published_at: null,
+    })
+    .eq("id", owned.id)
+    .eq("owner_id", user.id)
+    .eq("status", "published")
+    .select("id, slug")
+    .maybeSingle();
+
+  if (error) {
+    return { ok: false, message: mapDatabaseError(error.message) };
+  }
+
+  if (!data) {
+    return {
+      ok: false,
+      message: "We couldn't unpublish this document. Try again in a moment.",
+    };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/dashboard/documents/${owned.id}`);
+  revalidatePublicDocument(data.slug);
+
+  return {
+    ok: true,
+    message: "Unpublished. The public link no longer works.",
+    documentId: data.id,
+    slug: data.slug,
+  };
 }

@@ -25,7 +25,8 @@ A short brief for the **Atlas** release. Everything below is written in plain Ma
 
 - [x] Upload flow with drag and drop
 - [x] Safe Markdown rendering
-- [ ] Public links and presentation mode
+- [x] Public links
+- [ ] Presentation mode
 
 ## Request example
 

@@ -67,3 +67,20 @@ export type DocumentSummary = Pick<
   | "updated_at"
   | "published_at"
 >;
+
+/**
+ * The subset of a document that the public viewer is allowed to see.
+ * `owner_id` is intentionally missing so it can never reach an anonymous
+ * response.
+ */
+export type PublicDocument = Pick<
+  DocumentRow,
+  | "id"
+  | "title"
+  | "slug"
+  | "description"
+  | "content"
+  | "created_at"
+  | "updated_at"
+  | "published_at"
+>;

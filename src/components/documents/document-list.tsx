@@ -1,7 +1,10 @@
 import { ArrowRight, FilePlus2, FileText, Upload } from "lucide-react";
 import Link from "next/link";
 
+import { CopyLinkButton } from "@/components/documents/copy-link-button";
+import { PublishToggle } from "@/components/documents/publish-toggle";
 import { Badge } from "@/components/ui/badge";
+import { publicDocumentUrl } from "@/lib/documents/metadata";
 import { formatDate } from "@/lib/utils/date";
 import type { DocumentSummary } from "@/types/database";
 import { LinkButton } from "@/components/ui/link-button";
@@ -43,60 +46,88 @@ export function DocumentList({ documents }: { documents: DocumentSummary[] }) {
 
   return (
     <div className="overflow-hidden rounded-2xl border bg-card">
-      <div className="hidden grid-cols-[minmax(0,1fr)_120px_140px_88px] gap-4 border-b bg-muted/40 px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase sm:grid">
+      <div className="hidden grid-cols-[minmax(0,1fr)_120px_140px_200px] gap-4 border-b bg-muted/40 px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase sm:grid">
         <span>Document</span>
         <span>Status</span>
         <span>Updated</span>
-        <span className="text-right">Open</span>
+        <span className="text-right">Actions</span>
       </div>
       <ul className="divide-y">
-        {documents.map((document) => (
-          <li key={document.id}>
-            <div className="group grid gap-3 px-5 py-4 transition-colors hover:bg-muted/30 sm:grid-cols-[minmax(0,1fr)_120px_140px_88px] sm:items-center sm:gap-4">
-              <div className="flex min-w-0 items-start gap-3">
-                <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border bg-background">
-                  <FileText className="size-4 text-muted-foreground" />
-                </span>
-                <div className="min-w-0">
-                  <Link
-                    href={`/dashboard/documents/${document.id}`}
-                    className="block truncate text-sm font-medium underline-offset-4 hover:underline"
+        {documents.map((document) => {
+          const isPublished = document.status === "published";
+          const publicUrl = publicDocumentUrl(document.slug);
+
+          return (
+            <li key={document.id}>
+              <div className="group grid gap-3 px-5 py-4 transition-colors hover:bg-muted/30 sm:grid-cols-[minmax(0,1fr)_120px_140px_200px] sm:items-center sm:gap-4">
+                <div className="flex min-w-0 items-start gap-3">
+                  <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border bg-background">
+                    <FileText className="size-4 text-muted-foreground" />
+                  </span>
+                  <div className="min-w-0">
+                    <Link
+                      href={`/dashboard/documents/${document.id}`}
+                      className="block truncate text-sm font-medium underline-offset-4 hover:underline"
+                    >
+                      {document.title}
+                    </Link>
+                    {isPublished ? (
+                      <Link
+                        href={`/p/${document.slug}`}
+                        className="mt-0.5 block truncate font-mono text-[11px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                      >
+                        /p/{document.slug}
+                      </Link>
+                    ) : (
+                      <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
+                        /p/{document.slug}
+                      </p>
+                    )}
+                    {document.description ? (
+                      <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+                        {document.description}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div>
+                  <Badge
+                    variant={isPublished ? "default" : "secondary"}
+                    className="capitalize"
                   >
-                    {document.title}
-                  </Link>
-                  <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
-                    /p/{document.slug}
-                  </p>
-                  {document.description ? (
-                    <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
-                      {document.description}
-                    </p>
+                    {document.status}
+                  </Badge>
+                </div>
+
+                <p className="text-xs text-muted-foreground">
+                  {formatDate(document.updated_at)}
+                </p>
+
+                <div className="flex flex-wrap items-center justify-start gap-1.5 sm:justify-end">
+                  <LinkButton
+                    variant="ghost"
+                    size="sm"
+                    className="group/button"
+                    href={`/dashboard/documents/${document.id}`}
+                  >
+                    Open
+                    <ArrowRight className="size-3.5 transition-transform group-hover/button:translate-x-0.5" />
+                  </LinkButton>
+                  {isPublished ? (
+                    <CopyLinkButton url={publicUrl} size="icon-sm" iconOnly />
                   ) : null}
+                  <PublishToggle
+                    documentId={document.id}
+                    status={document.status}
+                    size="sm"
+                    variant={isPublished ? "outline" : "default"}
+                  />
                 </div>
               </div>
-
-              <div>
-                <Badge
-                  variant={document.status === "published" ? "default" : "secondary"}
-                  className="capitalize"
-                >
-                  {document.status}
-                </Badge>
-              </div>
-
-              <p className="text-xs text-muted-foreground">
-                {formatDate(document.updated_at)}
-              </p>
-
-              <div className="sm:text-right">
-                <LinkButton variant="ghost" size="sm" className="group/button" href={`/dashboard/documents/${document.id}`}>
-                  Open
-                  <ArrowRight className="size-3.5 transition-transform group-hover/button:translate-x-0.5" />
-                </LinkButton>
-              </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
       <div className="flex items-center justify-between gap-3 border-t bg-muted/20 px-5 py-3">
         <p className="text-xs text-muted-foreground">

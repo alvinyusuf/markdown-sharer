@@ -121,6 +121,16 @@ async function main() {
   const anonDraft = await anon.from("documents").select("id").eq("id", draft.id);
   check("anonymous cannot read a draft", (anonDraft.data ?? []).length === 0);
 
+  const anonDraftBySlug = await anon
+    .from("documents")
+    .select("id")
+    .eq("slug", slug)
+    .eq("status", "published");
+  check(
+    "anonymous cannot read a draft by slug",
+    (anonDraftBySlug.data ?? []).length === 0,
+  );
+
   const bDraft = await b.supabase.from("documents").select("id").eq("id", draft.id);
   check("another user cannot read a draft", (bDraft.data ?? []).length === 0);
 
@@ -159,6 +169,21 @@ async function main() {
     (anonPublished.data ?? []).length === 1,
   );
 
+  const anonPublishedBySlug = await anon
+    .from("documents")
+    .select("id, title, slug, content")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+  check(
+    "anonymous can read a published document by slug",
+    anonPublishedBySlug.data?.id === draft.id,
+  );
+  check(
+    "the public read does not expose the owner",
+    !("owner_id" in (anonPublishedBySlug.data ?? {})),
+  );
+
   const anonUpdate = await anon
     .from("documents")
     .update({ title: "Anonymous edit" })
@@ -181,6 +206,16 @@ async function main() {
   check(
     "unpublished document disappears from anonymous reads",
     (anonAfterUnpublish.data ?? []).length === 0,
+  );
+
+  const anonAfterUnpublishBySlug = await anon
+    .from("documents")
+    .select("id")
+    .eq("slug", slug)
+    .eq("status", "published");
+  check(
+    "unpublished document disappears from anonymous slug reads",
+    (anonAfterUnpublishBySlug.data ?? []).length === 0,
   );
 
   console.log("\nDELETE");
