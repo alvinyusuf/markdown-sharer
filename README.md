@@ -1,12 +1,13 @@
 # MarkdownShare
 
 Upload a Markdown file, preview the rendered document, and share it with a link.
-This repository currently implements **Phase 1–3** of
+This repository currently implements **Phase 1–4** of
 [`specification.md`](./specification.md): foundation, authentication, Markdown upload,
-persistent drafts, preview, publishing, and the public viewer at `/p/[slug]`.
+persistent drafts, preview, publishing, the public viewer at `/p/[slug]`, document
+management, and presentation mode.
 
-Presentation mode and document deletion are the next milestones. The app never makes a
-document public on upload — publishing is always an explicit action.
+Hardening and deployment are the next milestones. The app never makes a document
+public on upload — publishing is always an explicit action.
 
 ## Stack
 
@@ -92,17 +93,18 @@ instead of crashing.
 
 ## Routes
 
-| Route                            | Access | Purpose                                    |
-| -------------------------------- | ------ | ------------------------------------------ |
-| `/`                              | Public | Marketing page with a real rendered sample |
-| `/login`, `/signup`              | Public | Email/password auth                        |
-| `/auth/callback`                 | Public | Code/token exchange for email links        |
-| `/dashboard`                     | Owner  | List documents, publish, unpublish, delete |
-| `/dashboard/new`                 | Owner  | Upload and create a draft                  |
-| `/dashboard/documents/[id]`      | Owner  | Preview, edit metadata, publish, copy link |
-| `/dashboard/documents/[id]/edit` | Owner  | Replace or edit Markdown source            |
-| `/p/[slug]`                      | Public | Published document, readable without login |
-| `/p/[slug]/opengraph-image`      | Public | Social preview image for a document        |
+| Route                            | Access | Purpose                                       |
+| -------------------------------- | ------ | --------------------------------------------- |
+| `/`                              | Public | Marketing page with a real rendered sample    |
+| `/login`, `/signup`              | Public | Email/password auth                           |
+| `/auth/callback`                 | Public | Code/token exchange for email links           |
+| `/dashboard`                     | Owner  | List documents, publish, unpublish, delete    |
+| `/dashboard/new`                 | Owner  | Upload and create a draft                     |
+| `/dashboard/documents/[id]`      | Owner  | Preview, edit metadata, publish, copy link    |
+| `/dashboard/documents/[id]/edit` | Owner  | Replace or edit Markdown source               |
+| `/p/[slug]`                      | Public | Published document, readable without login    |
+| `/p/[slug]/sections`             | Public | Presentation sections of a published document |
+| `/p/[slug]/opengraph-image`      | Public | Social preview image for a document           |
 
 ## Security model
 
@@ -122,6 +124,8 @@ instead of crashing.
   belonging to a signed-in visitor. The public response never selects `owner_id`.
 - The proxy rejects `/p/{slug}` for documents that are not published, so a missing or
   unpublished link answers with a real `404` instead of a streamed `200`.
+- The presentation endpoint only serves published documents, and the sections are cut
+  from the sanitized tree, so a presentation shows exactly what the normal view shows.
 - No external URL is fetched server-side, so Markdown images cannot become an SSRF
   vector.
 
@@ -134,6 +138,25 @@ instead of crashing.
   the same slug.
 - `updated_at` is maintained by a trigger; `owner_id` is immutable.
 - RLS: owners read all their own rows; anonymous users read only `published` rows.
+
+## Presentation mode
+
+A reader can start a presentation from the public viewer. The document is shown one
+section at a time, full screen, with previous and next buttons, a progress indicator,
+and keyboard navigation (`←` previous, `→` next, `Esc` leaves the presentation).
+
+- **Sections come from the same sanitized tree as the normal view.** The content is
+  never re-parsed or changed, only the way it is displayed. A test asserts that
+  concatenating every section reproduces the original blocks exactly.
+- **Splitting rule:** the document is cut at every `H1` and `H2`. Content before the
+  first heading becomes an untitled first section. When a document has no `H1` or `H2`
+  at all, the fallback rule cuts after roughly 1500 characters of text or 12 top level
+  blocks, whichever comes first.
+- **The renderer is loaded on demand.** The viewer is imported when the reader presses
+  "Present", so a reader who only wants to read a document never downloads the
+  presentation renderer.
+- The sections are served by `/p/[slug]/sections`, which only answers for published
+  documents.
 
 ## Publishing, deleting, and caching
 
@@ -158,7 +181,8 @@ Coverage includes file validation, UTF-8 decoding, slug generation, safe redirec
 auth schema validation, GFM rendering, heading anchors, external link attributes, and
 XSS payloads (script tags, event handlers, `javascript:` links, iframes, SVG, data URLs,
 oversized documents). It also covers the publishing helpers: public URLs, meta
-descriptions, Open Graph metadata, and cache tags.
+descriptions, Open Graph metadata, and cache tags, plus the presentation rules: heading
+splits, the fallback split, and the guarantee that splitting never changes the content.
 
 ### Live RLS test
 
@@ -184,7 +208,7 @@ src/
     (auth)/                 login, signup
     auth/callback/          Supabase email link exchange
     dashboard/              owner-only pages
-    p/[slug]/               public document viewer + Open Graph image
+    p/[slug]/               public document viewer, presentation sections, Open Graph image
     error.tsx, not-found.tsx, robots.ts
   components/
     auth/  documents/  layout/  markdown/  system/  ui/
@@ -201,9 +225,8 @@ tests/
 
 ## Next milestones
 
-1. **Presentation mode** — split by H1/H2 with fallback, keyboard navigation, fullscreen.
-2. **Dashboard polish** — pagination, status filters, bulk actions.
-3. **Hardening** — Playwright E2E in CI, sitemap, rate limiting upgrade, deployment
+1. **Dashboard polish** — pagination, status filters, bulk actions.
+2. **Hardening** — Playwright E2E in CI, sitemap, rate limiting upgrade, deployment
    checklist.
 
 ## Deployment

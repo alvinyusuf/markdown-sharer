@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { CalendarDays, Presentation } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 
 import { CopyLinkButton } from "@/components/documents/copy-link-button";
 import { ShareButton } from "@/components/documents/share-button";
-import { Button } from "@/components/ui/button";
+import { PresentButton } from "@/components/presentation/present-button";
 import { buildDocumentMetadata, publicDocumentUrl } from "@/lib/documents/metadata";
 import {
   getPublishedDocument,
@@ -95,15 +95,7 @@ export default async function PublicDocumentPage(props: PageProps<"/p/[slug]">) 
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <CopyLinkButton url={canonical} />
           <ShareButton url={canonical} title={document.title} />
-          <Button
-            type="button"
-            variant="ghost"
-            disabled
-            title="Presentation mode arrives in the next milestone"
-          >
-            <Presentation className="size-4" />
-            Present
-          </Button>
+          <PresentButton slug={document.slug} documentTitle={document.title} />
         </div>
       </header>
 
