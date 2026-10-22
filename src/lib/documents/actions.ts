@@ -397,3 +397,74 @@ export async function unpublishDocumentAction(input: {
     slug: data.slug,
   };
 }
+
+export async function deleteDocumentAction(input: {
+  documentId: string;
+}): Promise<ActionResult> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { ok: false, message: "Your session expired. Sign in again." };
+  }
+
+  const parsed = documentIdSchema.safeParse(input.documentId);
+
+  if (!parsed.success) {
+    return { ok: false, message: "That document ID is not valid." };
+  }
+
+  const limit = checkRateLimit(`delete:${user.id}`, {
+    limit: 60,
+    windowMs: 10 * 60 * 1000,
+  });
+
+  if (!limit.ok) {
+    return {
+      ok: false,
+      message: "You're deleting documents too quickly. Wait a few minutes and try again.",
+    };
+  }
+
+  const supabase = await createClient();
+
+  // The slug is read first so the public link can be invalidated after the
+  // row is gone. Scoping by owner keeps this a no-op for other users.
+  const { data: owned, error: ownedError } = await supabase
+    .from("documents")
+    .select("id, slug, title")
+    .eq("id", parsed.data)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (ownedError) {
+    return { ok: false, message: "We couldn't load this document. Try again." };
+  }
+
+  if (!owned) {
+    return { ok: false, message: "Document not found." };
+  }
+
+  const { error } = await supabase
+    .from("documents")
+    .delete()
+    .eq("id", owned.id)
+    .eq("owner_id", user.id);
+
+  if (error) {
+    return {
+      ok: false,
+      message: "We couldn't delete this document. Try again in a moment.",
+    };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/p/${owned.slug}`);
+  revalidatePublicDocument(owned.slug);
+
+  return {
+    ok: true,
+    message: `Deleted "${owned.title}".`,
+    documentId: owned.id,
+    slug: owned.slug,
+  };
+}

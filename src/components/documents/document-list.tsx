@@ -2,6 +2,7 @@ import { ArrowRight, FilePlus2, FileText, Upload } from "lucide-react";
 import Link from "next/link";
 
 import { CopyLinkButton } from "@/components/documents/copy-link-button";
+import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
 import { PublishToggle } from "@/components/documents/publish-toggle";
 import { Badge } from "@/components/ui/badge";
 import { publicDocumentUrl } from "@/lib/documents/metadata";
@@ -46,7 +47,7 @@ export function DocumentList({ documents }: { documents: DocumentSummary[] }) {
 
   return (
     <div className="overflow-hidden rounded-2xl border bg-card">
-      <div className="hidden grid-cols-[minmax(0,1fr)_120px_140px_200px] gap-4 border-b bg-muted/40 px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase sm:grid">
+      <div className="hidden grid-cols-[minmax(0,1fr)_120px_140px_250px] gap-4 border-b bg-muted/40 px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase sm:grid">
         <span>Document</span>
         <span>Status</span>
         <span>Updated</span>
@@ -59,7 +60,7 @@ export function DocumentList({ documents }: { documents: DocumentSummary[] }) {
 
           return (
             <li key={document.id}>
-              <div className="group grid gap-3 px-5 py-4 transition-colors hover:bg-muted/30 sm:grid-cols-[minmax(0,1fr)_120px_140px_200px] sm:items-center sm:gap-4">
+              <div className="group grid gap-3 px-5 py-4 transition-colors hover:bg-muted/30 sm:grid-cols-[minmax(0,1fr)_120px_140px_250px] sm:items-center sm:gap-4">
                 <div className="flex min-w-0 items-start gap-3">
                   <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border bg-background">
                     <FileText className="size-4 text-muted-foreground" />
@@ -122,6 +123,13 @@ export function DocumentList({ documents }: { documents: DocumentSummary[] }) {
                     status={document.status}
                     size="sm"
                     variant={isPublished ? "outline" : "default"}
+                  />
+                  <DeleteDocumentButton
+                    documentId={document.id}
+                    documentTitle={document.title}
+                    variant="ghost"
+                    size="icon-sm"
+                    className="text-muted-foreground hover:text-destructive"
                   />
                 </div>
               </div>

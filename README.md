@@ -97,7 +97,7 @@ instead of crashing.
 | `/`                              | Public | Marketing page with a real rendered sample |
 | `/login`, `/signup`              | Public | Email/password auth                        |
 | `/auth/callback`                 | Public | Code/token exchange for email links        |
-| `/dashboard`                     | Owner  | List documents, publish and unpublish      |
+| `/dashboard`                     | Owner  | List documents, publish, unpublish, delete |
 | `/dashboard/new`                 | Owner  | Upload and create a draft                  |
 | `/dashboard/documents/[id]`      | Owner  | Preview, edit metadata, publish, copy link |
 | `/dashboard/documents/[id]/edit` | Owner  | Replace or edit Markdown source            |
@@ -115,6 +115,9 @@ instead of crashing.
 - Uploads are validated twice: extension/size/UTF-8 in the browser, then size, title,
   description, and content again in the Server Action.
 - Every query and mutation scopes by `owner_id`; RLS is the second boundary.
+- Deleting a document is a hard delete: the row and its content are removed for good.
+  It needs an explicit confirmation, and only the owner can trigger it. The public link
+  stops working immediately because the proxy looks the slug up in the database.
 - Public rendering uses a cookieless Supabase client so it can never see a draft
   belonging to a signed-in visitor. The public response never selects `owner_id`.
 - The proxy rejects `/p/{slug}` for documents that are not published, so a missing or
@@ -132,15 +135,16 @@ instead of crashing.
 - `updated_at` is maintained by a trigger; `owner_id` is immutable.
 - RLS: owners read all their own rows; anonymous users read only `published` rows.
 
-## Publishing and caching
+## Publishing, deleting, and caching
 
-- `publishDocumentAction` / `unpublishDocumentAction` are Server Actions. They verify
-  the session, the ownership, and the current status before touching the row, and they
-  set `published_at` together with the status so the database check constraint holds.
+- `publishDocumentAction` / `unpublishDocumentAction` / `deleteDocumentAction` are Server
+  Actions. They verify the session, the ownership, and the current status before
+  touching the row, and they set `published_at` together with the status so the
+  database check constraint holds.
 - The public document and its rendered Markdown tree are cached with `"use cache"` and
   a `document:{slug}` tag. Every mutation that changes what a reader sees
-  (publish, unpublish, content, metadata) calls `updateTag()` for that tag, so the next
-  reader gets the new content — or a 404 after an unpublish.
+  (publish, unpublish, delete, content, metadata) calls `updateTag()` for that tag, so
+  the next reader gets the new content — or a 404 after an unpublish or a delete.
 - The slug never changes after a document is created, so the public URL stays stable
   across updates.
 
@@ -169,7 +173,7 @@ pnpm verify:rls
 The script uses only the anon key. It verifies that drafts are invisible to anonymous
 users and other accounts, that cross-user updates/deletes do nothing, and that
 publish/unpublish changes anonymous visibility — including reads by slug, which is how
-the public viewer looks a document up.
+the public viewer looks a document up, and that a deleted document is gone for good.
 
 ## Project structure
 
@@ -198,8 +202,9 @@ tests/
 ## Next milestones
 
 1. **Presentation mode** — split by H1/H2 with fallback, keyboard navigation, fullscreen.
-2. **Dashboard management** — delete with confirmation, pagination, status filters.
-3. **Hardening** — Playwright E2E in CI, rate limiting upgrade, deployment checklist.
+2. **Dashboard polish** — pagination, status filters, bulk actions.
+3. **Hardening** — Playwright E2E in CI, sitemap, rate limiting upgrade, deployment
+   checklist.
 
 ## Deployment
 

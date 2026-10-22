@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { CopyLinkButton } from "@/components/documents/copy-link-button";
+import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
 import { DocumentDetailsForm } from "@/components/documents/document-details-form";
 import { PublishToggle } from "@/components/documents/publish-toggle";
 import { SetupNotice } from "@/components/system/setup-notice";
@@ -208,6 +209,21 @@ export default async function DocumentPreviewPage({
                 <dd>{formatDateTime(document.created_at)}</dd>
               </div>
             </dl>
+          </div>
+
+          <div className="rounded-2xl border border-destructive/30 bg-card p-5">
+            <h2 className="text-sm font-semibold">Danger zone</h2>
+            <p className="mt-1 mb-4 text-xs leading-relaxed text-muted-foreground">
+              Deleting a document removes it and its content for good. The public link
+              stops working immediately.
+            </p>
+            <DeleteDocumentButton
+              documentId={document.id}
+              documentTitle={document.title}
+              variant="destructive"
+              size="sm"
+              iconOnly={false}
+            />
           </div>
         </aside>
       </div>

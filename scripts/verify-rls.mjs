@@ -226,6 +226,22 @@ async function main() {
     .select("id");
   check("owner can delete", (ownerDelete.data ?? []).length === 1);
 
+  const anonAfterDelete = await anon
+    .from("documents")
+    .select("id")
+    .eq("slug", slug)
+    .eq("status", "published");
+  check(
+    "a deleted document is gone for anonymous slug reads",
+    (anonAfterDelete.data ?? []).length === 0,
+  );
+
+  const anonReadDeleted = await anon.from("documents").select("id").eq("id", draft.id);
+  check(
+    "a deleted document cannot be read by id either",
+    (anonReadDeleted.data ?? []).length === 0,
+  );
+
   console.log(
     `\nTest users: ${a.email}, ${b.email}. Delete them from Supabase Auth if they were created by this script.`,
   );
