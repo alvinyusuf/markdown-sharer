@@ -1,0 +1,2 @@
+-- No seed data is required for the MVP.
+-- Add local development fixtures here if you need them.
