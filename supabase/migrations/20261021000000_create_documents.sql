@@ -1,4 +1,4 @@
--- MarkdownShare MVP: documents, limits, timestamps, and row level security.
+-- Readmeo MVP: documents, limits, timestamps, and row level security.
 
 create table public.documents (
   id uuid primary key default gen_random_uuid(),

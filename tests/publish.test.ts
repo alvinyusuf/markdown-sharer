@@ -9,7 +9,7 @@ import {
 } from "@/lib/documents/metadata";
 import { documentSlugSchema } from "@/lib/validation/schemas";
 
-const SITE_URL = "https://markdownshare.app";
+const SITE_URL = "https://readmeo.app";
 
 const document = {
   title: "Product launch notes",
@@ -93,7 +93,7 @@ describe("document descriptions", () => {
         description: null,
         content: "",
       }),
-    ).toBe(`${document.title} — shared with MarkdownShare.`);
+    ).toBe(`${document.title} — shared with Readmeo.`);
   });
 });
 

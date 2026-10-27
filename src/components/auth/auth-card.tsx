@@ -35,7 +35,7 @@ export function AuthPageShell({ children }: { children: ReactNode }) {
     <div className="relative flex min-h-svh flex-col">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(60%_100%_at_50%_0%,oklch(0.93_0.035_155/55%),transparent_75%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(60%_100%_at_50%_0%,oklch(0.93_0.045_264/55%),transparent_75%)]"
       />
       <div className="relative flex items-center justify-between px-4 py-5 sm:px-6">
         <Logo />

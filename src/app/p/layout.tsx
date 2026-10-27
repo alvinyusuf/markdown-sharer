@@ -13,7 +13,7 @@ export default function PublicLayout({ children }: LayoutProps<"/p">) {
             href="/"
             className="rounded-md text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:outline-none"
           >
-            MarkdownShare
+            Readmeo
           </Link>
         </div>
       </header>
@@ -22,7 +22,7 @@ export default function PublicLayout({ children }: LayoutProps<"/p">) {
 
       <footer className="border-t bg-card/40">
         <div className="mx-auto flex w-full max-w-3xl flex-col items-start justify-between gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:px-6">
-          <p>Shared with MarkdownShare.</p>
+          <p>Shared with Readmeo.</p>
           <Link
             href="/"
             className="underline-offset-4 transition-colors hover:text-foreground hover:underline"

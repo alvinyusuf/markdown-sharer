@@ -1,6 +1,6 @@
-# MarkdownShare
+# Readmeo
 
-Upload a Markdown file, preview the rendered document, and share it with a link.
+Readmeo (by Neoprism) — upload a Markdown file, preview the rendered document, and share it with a link.
 This repository currently implements **Phase 1–4** of
 [`specification.md`](./specification.md): foundation, authentication, Markdown upload,
 persistent drafts, preview, publishing, the public viewer at `/p/[slug]`, document

@@ -13,7 +13,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   title: "Create account",
-  description: "Create a MarkdownShare account and publish your first document.",
+  description: "Create a Readmeo account and publish your first document.",
   robots: { index: false, follow: false },
 };
 

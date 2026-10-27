@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 import { getPublishedDocument } from "@/lib/documents/public-queries";
 
-export const alt = "A document shared with MarkdownShare";
+export const alt = "A document shared with Readmeo";
 export const size = {
   width: 1200,
   height: 630,
@@ -19,7 +19,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { slug } = await params;
   const document = await getPublishedDocument(slug);
 
-  const title = document?.title ?? "Shared with MarkdownShare";
+  const title = document?.title ?? "Shared with Readmeo";
   const description = document?.description ?? undefined;
 
   return new ImageResponse(
@@ -32,7 +32,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         justifyContent: "space-between",
         backgroundColor: "#faf9f6",
         backgroundImage:
-          "radial-gradient(circle at 12% 0%, rgba(168, 199, 180, 0.45), transparent 55%)",
+          "radial-gradient(circle at 12% 0%, rgba(59, 99, 235, 0.22), transparent 55%)",
         padding: "72px",
         fontFamily: "sans-serif",
       }}
@@ -46,16 +46,16 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             width: "48px",
             height: "48px",
             borderRadius: "14px",
-            backgroundColor: "#1f2a24",
+            backgroundColor: "#2450E6",
             color: "#faf9f6",
             fontSize: "26px",
             fontWeight: 700,
           }}
         >
-          M
+          R
         </div>
         <div style={{ display: "flex", fontSize: "26px", color: "#5d5a52" }}>
-          MarkdownShare
+          Readmeo
         </div>
       </div>
 

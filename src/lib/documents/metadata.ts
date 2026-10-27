@@ -57,7 +57,7 @@ export function documentDescription(
     return excerpt;
   }
 
-  return `${document.title} — shared with MarkdownShare.`;
+  return `${document.title} — shared with Readmeo.`;
 }
 
 /**
@@ -84,7 +84,7 @@ export function buildDocumentMetadata(
     openGraph: {
       type: "article",
       url: canonical,
-      siteName: "MarkdownShare",
+      siteName: "Readmeo",
       title: document.title,
       description,
       publishedTime: document.published_at ?? undefined,

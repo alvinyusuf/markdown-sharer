@@ -1,4 +1,4 @@
-# MarkdownShare — Product & Technical Specification
+# Readmeo — Product & Technical Specification
 
 **Document type:** Product Requirements + Technical Specification  
 **Status:** Draft v1.0  
@@ -13,7 +13,7 @@
 
 ### 1.1 Product Vision
 
-MarkdownShare adalah aplikasi web untuk mengubah file Markdown menjadi dokumen visual yang rapi, mudah dibaca melalui browser, dan dapat dibagikan menggunakan public URL.
+Readmeo adalah aplikasi web untuk mengubah file Markdown menjadi dokumen visual yang rapi, mudah dibaca melalui browser, dan dapat dibagikan menggunakan public URL.
 
 Pengguna tidak perlu meminta teman atau audiens untuk menginstal editor Markdown. Mereka cukup membuka tautan yang dibagikan untuk membaca dokumen, melihat diagram, atau mengikuti presentasi.
 
@@ -25,7 +25,7 @@ Hal ini kurang praktis untuk kebutuhan dokumentasi teknis, catatan meeting, lapo
 
 ### 1.3 Proposed Solution
 
-MarkdownShare menyediakan alur sederhana:
+Readmeo menyediakan alur sederhana:
 
 1. Pengguna membuka aplikasi.
 2. Pengguna mengunggah file `.md` atau `.markdown`.
@@ -80,7 +80,7 @@ Fitur berikut tidak termasuk ruang lingkup versi pertama:
 - Private document sharing dengan password atau expiry date.
 - AI-generated summaries atau AI presentation generation.
 
-**Catatan produk:** MarkdownShare pada MVP adalah Markdown publisher dan viewer, bukan pengganti penuh Typora. Pengguna mengedit file menggunakan editor pilihan mereka, kemudian mengunggah versi terbaru ketika diperlukan.
+**Catatan produk:** Readmeo pada MVP adalah Markdown publisher dan viewer, bukan pengganti penuh Typora. Pengguna mengedit file menggunakan editor pilihan mereka, kemudian mengunggah versi terbaru ketika diperlukan.
 
 ---
 

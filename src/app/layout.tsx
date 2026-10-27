@@ -27,23 +27,23 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "MarkdownShare — Markdown, ready to share",
-    template: "%s · MarkdownShare",
+    default: "Readmeo — Markdown, ready to share",
+    template: "%s · Readmeo",
   },
   description:
     "Upload a Markdown file, preview it as a polished document, and share it with a link. No reader installs required.",
-  applicationName: "MarkdownShare",
+  applicationName: "Readmeo",
   openGraph: {
     type: "website",
-    siteName: "MarkdownShare",
-    title: "MarkdownShare — Markdown, ready to share",
+    siteName: "Readmeo",
+    title: "Readmeo — Markdown, ready to share",
     description:
       "Upload a Markdown file, preview it as a polished document, and share it with a link.",
     url: "/",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MarkdownShare — Markdown, ready to share",
+    title: "Readmeo — Markdown, ready to share",
     description:
       "Upload a Markdown file, preview it as a polished document, and share it with a link.",
   },
