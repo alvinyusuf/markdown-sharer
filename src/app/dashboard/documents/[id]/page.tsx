@@ -16,6 +16,7 @@ import { CopyLinkButton } from "@/components/documents/copy-link-button";
 import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
 import { DocumentDetailsForm } from "@/components/documents/document-details-form";
 import { ExpandedPreview } from "@/components/documents/expanded-preview";
+import { ExpandedPresentation } from "@/components/documents/expanded-presentation";
 import { PublishToggle } from "@/components/documents/publish-toggle";
 import { SetupNotice } from "@/components/system/setup-notice";
 import { Badge } from "@/components/ui/badge";
@@ -109,6 +110,10 @@ export default async function DocumentPreviewPage({
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <ExpandedPreview
+                content={document.content}
+                documentTitle={document.title}
+              />
+              <ExpandedPresentation
                 content={document.content}
                 documentTitle={document.title}
               />
