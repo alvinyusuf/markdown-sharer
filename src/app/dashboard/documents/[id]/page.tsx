@@ -15,6 +15,7 @@ import {
 import { CopyLinkButton } from "@/components/documents/copy-link-button";
 import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
 import { DocumentDetailsForm } from "@/components/documents/document-details-form";
+import { ExpandedPreview } from "@/components/documents/expanded-preview";
 import { PublishToggle } from "@/components/documents/publish-toggle";
 import { SetupNotice } from "@/components/system/setup-notice";
 import { Badge } from "@/components/ui/badge";
@@ -106,10 +107,16 @@ export default async function DocumentPreviewPage({
               <FileText className="size-3.5" />
               Rendered preview
             </div>
-            <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <Info className="size-3" />
-              Sanitized output
-            </span>
+            <div className="flex shrink-0 items-center gap-2">
+              <ExpandedPreview
+                content={document.content}
+                documentTitle={document.title}
+              />
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Info className="size-3" />
+                Sanitized output
+              </span>
+            </div>
           </div>
           <div className="px-5 py-8 sm:px-10 sm:py-10">
             <article className="prose-doc prose max-w-none">{rendered}</article>
