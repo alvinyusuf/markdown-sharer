@@ -26,7 +26,7 @@ A short brief for the **Atlas** release. Everything below is written in plain Ma
 - [x] Upload flow with drag and drop
 - [x] Safe Markdown rendering
 - [x] Public links
-- [ ] Presentation mode
+- [x] Presentation mode
 
 ## Request example
 
@@ -57,7 +57,7 @@ const steps = [
     number: "01",
     title: "Upload your Markdown",
     description:
-      "Drop in a .md or .markdown file up to 2 MB. We validate the bytes, not the file extension alone.",
+      "Drop in a .md or .markdown file up to 2 MB. We check the file and its contents before uploading.",
   },
   {
     number: "02",
@@ -83,7 +83,7 @@ const features = [
     icon: ShieldCheck,
     title: "Safe by default",
     description:
-      "Raw HTML is discarded and every tree is sanitized before it reaches the page.",
+      "Unsafe HTML is removed so your readers can open shared documents safely.",
   },
   {
     icon: Code2,
@@ -94,8 +94,7 @@ const features = [
   {
     icon: Link2,
     title: "Stable public links",
-    description:
-      "Every published document gets a unique slug that survives content updates.",
+    description: "Your published link stays the same when you update the document.",
   },
   {
     icon: MonitorPlay,
@@ -136,24 +135,42 @@ export default async function HomePage() {
               browser — no editor, no account, no setup.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <LinkButton
-                size="lg"
-                className="h-11 px-5 text-[15px] shadow-sm"
-                href="/dashboard/new"
-              >
-                <Upload className="size-4" />
-                Upload Markdown
-              </LinkButton>
-              <LinkButton
-                variant="ghost"
-                size="lg"
-                className="h-11 px-4 text-[15px]"
-                href="/try"
-              >
-                Try without signing in
-                <ArrowRight className="size-4" />
-              </LinkButton>
+            <div className="mt-8 grid gap-5 sm:grid-cols-2">
+              <div className="space-y-2">
+                <LinkButton
+                  size="lg"
+                  className="h-11 w-full px-5 text-sm shadow-sm"
+                  href="/dashboard/new"
+                  aria-describedby="private-draft-note"
+                >
+                  <Upload className="size-4" />
+                  Create a private draft
+                </LinkButton>
+                <p
+                  id="private-draft-note"
+                  className="text-xs leading-relaxed text-muted-foreground"
+                >
+                  Account required. Publish when you&apos;re ready.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <LinkButton
+                  variant="outline"
+                  size="lg"
+                  className="h-11 w-full px-4 text-sm"
+                  href="/try"
+                  aria-describedby="guest-link-note"
+                >
+                  Try without signing in
+                  <ArrowRight className="size-4" />
+                </LinkButton>
+                <p
+                  id="guest-link-note"
+                  className="text-xs leading-relaxed text-muted-foreground"
+                >
+                  Creates a public link that expires after 24 hours.
+                </p>
+              </div>
             </div>
 
             <ul className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
@@ -167,7 +184,7 @@ export default async function HomePage() {
               </li>
               <li className="flex items-center gap-1.5">
                 <Check className="size-3.5 text-blue-700" />
-                Private until published
+                No account needed to read
               </li>
             </ul>
           </div>
@@ -177,7 +194,7 @@ export default async function HomePage() {
               aria-hidden="true"
               className="absolute -inset-6 -z-10 rounded-[2rem] bg-blue-900/[0.04] blur-2xl"
             />
-            <div className="paper-shadow overflow-hidden rounded-2xl border bg-card">
+            <div className="paper-shadow min-w-0 overflow-hidden rounded-2xl border bg-card">
               <div className="flex items-center gap-3 border-b bg-muted/50 px-4 py-3">
                 <div className="flex gap-1.5">
                   <span className="size-2.5 rounded-full bg-red-400/80" />
@@ -185,20 +202,28 @@ export default async function HomePage() {
                   <span className="size-2.5 rounded-full bg-blue-400/80" />
                 </div>
                 <div className="flex flex-1 items-center justify-center">
-                  <span className="rounded-md border bg-background px-2.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-                    readmeo.neoprism.id/p/product-launch-notes
+                  <span className="text-xs font-medium text-muted-foreground">
+                    Sample document
                   </span>
                 </div>
               </div>
-              <div className="relative max-h-[520px] overflow-hidden">
+              <div
+                role="region"
+                aria-label="Sample Markdown document"
+                aria-describedby="sample-scroll-hint"
+                tabIndex={0}
+                className="thin-scrollbar max-h-[520px] overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+              >
                 <div className="prose-doc prose-sample prose max-w-none px-6 py-7 sm:px-9">
                   {sample}
                 </div>
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-card to-transparent"
-                />
               </div>
+              <p
+                id="sample-scroll-hint"
+                className="border-t bg-muted/30 px-4 py-3 text-xs text-muted-foreground"
+              >
+                Scroll to read the full sample, including code and tables.
+              </p>
             </div>
             <div className="absolute -right-3 -bottom-4 hidden items-center gap-2 rounded-xl border bg-card px-3 py-2 text-xs font-medium shadow-lg sm:flex">
               <span className="flex size-6 items-center justify-center rounded-full bg-blue-100 text-blue-800">
@@ -210,13 +235,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="how-it-works" className="border-y bg-card/50">
+      <section id="how-it-works" className="scroll-mt-20 border-y bg-card/50">
         <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
-              How it works
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
               Three steps from file to readable page.
             </h2>
           </div>
@@ -239,14 +261,11 @@ export default async function HomePage() {
 
       <section
         id="features"
-        className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 lg:px-8"
+        className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6 lg:px-8"
       >
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
-              Built for reading
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
               Everything a document needs. Nothing it doesn&apos;t.
             </h2>
           </div>
@@ -292,7 +311,7 @@ export default async function HomePage() {
                 className="h-11 bg-white px-5 text-[15px] text-primary hover:bg-white/90"
                 href="/signup"
               >
-                Get started free
+                Create an account
                 <ArrowUpRight className="size-4" />
               </LinkButton>
             </div>

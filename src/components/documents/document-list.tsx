@@ -47,7 +47,7 @@ export function DocumentList({ documents }: { documents: DocumentSummary[] }) {
 
   return (
     <div className="overflow-hidden rounded-2xl border bg-card">
-      <div className="hidden grid-cols-[minmax(0,1fr)_120px_140px_250px] gap-4 border-b bg-muted/40 px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase sm:grid">
+      <div className="hidden grid-cols-[minmax(0,1fr)_100px_110px_250px] gap-4 border-b bg-muted/40 px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase lg:grid">
         <span>Document</span>
         <span>Status</span>
         <span>Updated</span>
@@ -60,7 +60,7 @@ export function DocumentList({ documents }: { documents: DocumentSummary[] }) {
 
           return (
             <li key={document.id}>
-              <div className="group grid gap-3 px-5 py-4 transition-colors hover:bg-muted/30 sm:grid-cols-[minmax(0,1fr)_120px_140px_250px] sm:items-center sm:gap-4">
+              <div className="group grid gap-3 px-5 py-4 transition-colors hover:bg-muted/30 lg:grid-cols-[minmax(0,1fr)_100px_110px_250px] lg:items-center lg:gap-4">
                 <div className="flex min-w-0 items-start gap-3">
                   <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border bg-background">
                     <FileText className="size-4 text-muted-foreground" />

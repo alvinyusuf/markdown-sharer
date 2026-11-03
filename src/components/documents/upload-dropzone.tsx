@@ -187,7 +187,7 @@ export function UploadDropzone({ demo = false }: { demo?: boolean }) {
             </div>
             <div className="mt-3 flex items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground">
-                File read as UTF-8 and validated on your device.
+                Your file is ready to upload.
               </p>
               <Button
                 type="button"
@@ -218,7 +218,7 @@ export function UploadDropzone({ demo = false }: { demo?: boolean }) {
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="font-medium text-foreground underline underline-offset-4"
+                className="inline-flex min-h-11 items-center rounded-sm font-medium text-foreground underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 choose a file
               </button>{" "}
@@ -292,7 +292,7 @@ export function UploadDropzone({ demo = false }: { demo?: boolean }) {
               {demo ? "Uploading document…" : "Creating draft…"}
             </>
           ) : demo ? (
-            "Upload & preview"
+            "Create public 24-hour link"
           ) : (
             "Create draft & preview"
           )}

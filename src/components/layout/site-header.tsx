@@ -18,7 +18,7 @@ async function HeaderAuth() {
           Sign in
         </LinkButton>
         <LinkButton size="sm" href="/signup">
-          Get started
+          Create an account
         </LinkButton>
       </div>
     );
@@ -29,8 +29,8 @@ async function HeaderAuth() {
       <LinkButton variant="ghost" size="sm" href="/dashboard">
         Dashboard
       </LinkButton>
-      <div className="hidden items-center gap-2 rounded-full border bg-card py-1 pr-1 pl-3 sm:flex">
-        <span className="max-w-40 truncate text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 sm:rounded-full sm:border sm:bg-card sm:py-1 sm:pr-1 sm:pl-3">
+        <span className="hidden max-w-40 truncate text-xs text-muted-foreground sm:block">
           {user.email}
         </span>
         <form action={signOutAction}>
@@ -57,8 +57,8 @@ async function HeaderAuth() {
 function HeaderAuthFallback() {
   return (
     <div className="flex items-center gap-2">
-      <Skeleton className="h-7 w-20 rounded-lg" />
-      <Skeleton className="h-7 w-24 rounded-lg" />
+      <Skeleton className="h-11 w-16 rounded-lg sm:h-7" />
+      <Skeleton className="h-11 w-32 rounded-lg sm:h-7" />
     </div>
   );
 }
@@ -66,7 +66,7 @@ function HeaderAuthFallback() {
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:h-16 sm:flex-nowrap sm:gap-4 sm:px-6 sm:py-0 lg:px-8">
         <Logo />
         <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
           <Link href="/#how-it-works" className="transition-colors hover:text-foreground">
