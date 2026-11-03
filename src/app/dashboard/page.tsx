@@ -18,10 +18,10 @@ export const metadata = {
 function DashboardSkeleton() {
   return (
     <div className="space-y-8">
-      <div className="flex items-end justify-between gap-4">
-        <div className="space-y-3">
-          <Skeleton className="h-9 w-56" />
-          <Skeleton className="h-4 w-72" />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0 space-y-3">
+          <Skeleton className="h-9 w-56 max-w-full" />
+          <Skeleton className="h-4 w-72 max-w-full" />
         </div>
         <Skeleton className="h-9 w-36 rounded-lg" />
       </div>
@@ -71,7 +71,7 @@ async function DashboardContent() {
               : `${documents.length} ${documents.length === 1 ? "document" : "documents"} · drafts stay private`}
           </p>
         </div>
-        <LinkButton className="self-start sm:self-auto" href="/dashboard/new">
+        <LinkButton className="w-full sm:w-auto sm:self-auto" href="/dashboard/new">
           <span className="text-base leading-none">+</span>
           New document
         </LinkButton>

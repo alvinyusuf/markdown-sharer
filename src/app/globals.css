@@ -147,6 +147,8 @@
     --tw-prose-th-borders: oklch(0.86 0.005 90);
     --tw-prose-td-borders: var(--border);
     max-width: 74ch;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .prose-doc :where(h1, h2, h3, h4, h5, h6) {
@@ -156,7 +158,7 @@
   }
 
   .prose-doc :where(h1) {
-    font-size: 2.6rem;
+    font-size: clamp(2rem, 6vw, 2.6rem);
     line-height: 1.1;
   }
 
@@ -214,6 +216,7 @@
   }
 
   .prose-doc :where(pre) {
+    overflow-wrap: normal;
     margin: 0;
     padding: 0;
     background: transparent;
@@ -249,6 +252,7 @@
   }
 
   .table-wrap {
+    max-width: 100%;
     margin-block: 1.75rem;
     overflow-x: auto;
     border: 1px solid var(--border);
@@ -278,6 +282,12 @@
   .prose-doc :where(h1, h2, h3, h4, h5, h6):hover .heading-anchor,
   .heading-anchor:focus-visible {
     opacity: 1;
+  }
+
+  @media (hover: none) {
+    .heading-anchor {
+      opacity: 1;
+    }
   }
 
   .prose-doc :where(input[type="checkbox"]) {

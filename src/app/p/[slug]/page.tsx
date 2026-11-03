@@ -72,7 +72,7 @@ export default async function PublicDocumentPage(props: PageProps<"/p/[slug]">) 
   const canonical = publicDocumentUrl(document.slug);
 
   return (
-    <article className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+    <article className="mx-auto w-full max-w-3xl min-w-0 px-4 py-6 sm:px-6 sm:py-14">
       {document.is_demo && document.expires_at ? (
         <aside className="mb-6 rounded-xl border bg-muted/50 p-4 text-sm text-muted-foreground">
           Temporary guest document. Automatically deleted on{" "}
@@ -83,7 +83,7 @@ export default async function PublicDocumentPage(props: PageProps<"/p/[slug]">) 
           .
         </aside>
       ) : null}
-      <header className="mb-10 border-b pb-8">
+      <header className="mb-7 border-b pb-6 sm:mb-10 sm:pb-8">
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           {document.published_at ? (
             <span className="inline-flex items-center gap-1.5">
@@ -92,10 +92,10 @@ export default async function PublicDocumentPage(props: PageProps<"/p/[slug]">) 
             </span>
           ) : null}
           <span aria-hidden="true">·</span>
-          <span className="font-mono">/p/{document.slug}</span>
+          <span className="min-w-0 font-mono wrap-anywhere">/p/{document.slug}</span>
         </div>
 
-        <h1 className="mt-4 font-serif text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl">
+        <h1 className="mt-4 font-serif text-3xl leading-tight font-semibold tracking-tight text-balance wrap-anywhere sm:text-4xl">
           {document.title}
         </h1>
 
@@ -105,7 +105,7 @@ export default async function PublicDocumentPage(props: PageProps<"/p/[slug]">) 
           </p>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap items-center gap-2">
+        <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center [&>button:last-of-type]:col-span-2 sm:[&>button:last-of-type]:col-auto">
           <CopyLinkButton url={canonical} />
           <ShareButton url={canonical} title={document.title} />
           <PresentButton slug={document.slug} documentTitle={document.title} />

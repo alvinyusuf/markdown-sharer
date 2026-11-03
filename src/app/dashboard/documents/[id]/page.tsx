@@ -84,7 +84,7 @@ export default async function DocumentPreviewPage({
               Updated {formatDateTime(document.updated_at)}
             </span>
           </div>
-          <h1 className="mt-3 font-serif text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl">
+          <h1 className="mt-3 font-serif text-3xl leading-tight font-semibold tracking-tight text-balance wrap-anywhere sm:text-4xl">
             {document.title}
           </h1>
           {document.description ? (
@@ -102,13 +102,13 @@ export default async function DocumentPreviewPage({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="overflow-hidden rounded-2xl border bg-card">
-          <div className="flex items-center justify-between gap-3 border-b bg-muted/30 px-4 py-2.5">
+        <section className="min-w-0 overflow-hidden rounded-2xl border bg-card">
+          <div className="flex flex-col gap-3 border-b bg-muted/30 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <FileText className="size-3.5" />
               Rendered preview
             </div>
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <ExpandedPreview
                 content={document.content}
                 documentTitle={document.title}
@@ -117,18 +117,18 @@ export default async function DocumentPreviewPage({
                 content={document.content}
                 documentTitle={document.title}
               />
-              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Info className="size-3" />
                 Sanitized output
               </span>
             </div>
           </div>
-          <div className="px-5 py-8 sm:px-10 sm:py-10">
+          <div className="px-4 py-6 sm:px-10 sm:py-10">
             <article className="prose-doc prose max-w-none">{rendered}</article>
           </div>
         </section>
 
-        <aside className="space-y-4">
+        <aside className="min-w-0 space-y-4">
           <div className="rounded-2xl border bg-card p-5">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-sm font-semibold">Publishing</h2>

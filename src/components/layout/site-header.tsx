@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { Logo } from "@/components/layout/logo";
+import { HeaderNavigation } from "@/components/layout/header-navigation";
 import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -66,21 +67,32 @@ function HeaderAuthFallback() {
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:h-16 sm:flex-nowrap sm:gap-4 sm:px-6 sm:py-0 lg:px-8">
+      <div className="relative mx-auto flex h-16 w-full max-w-6xl items-center gap-6 px-4 sm:px-6 lg:gap-12 lg:px-8">
         <Logo />
-        <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-          <Link href="/#how-it-works" className="transition-colors hover:text-foreground">
-            How it works
-          </Link>
-          <Link href="/#features" className="transition-colors hover:text-foreground">
-            Features
-          </Link>
-        </nav>
-        <div className="flex items-center gap-2">
-          <Suspense fallback={<HeaderAuthFallback />}>
-            <HeaderAuth />
-          </Suspense>
-        </div>
+        <HeaderNavigation>
+          <nav
+            aria-label="Main navigation"
+            className="flex flex-col gap-1 text-sm text-muted-foreground md:flex-row md:items-center md:gap-6"
+          >
+            <Link
+              href="/#how-it-works"
+              className="flex min-h-11 items-center rounded-md px-3 transition-colors hover:bg-muted hover:text-foreground md:px-0 md:hover:bg-transparent"
+            >
+              How it works
+            </Link>
+            <Link
+              href="/#features"
+              className="flex min-h-11 items-center rounded-md px-3 transition-colors hover:bg-muted hover:text-foreground md:px-0 md:hover:bg-transparent"
+            >
+              Features
+            </Link>
+          </nav>
+          <div className="border-t pt-4 md:border-0 md:pt-0">
+            <Suspense fallback={<HeaderAuthFallback />}>
+              <HeaderAuth />
+            </Suspense>
+          </div>
+        </HeaderNavigation>
       </div>
     </header>
   );

@@ -107,8 +107,8 @@ export function ExpandedPreview({ content, documentTitle }: ExpandedPreviewProps
           className="inset-0 top-0 left-0 flex h-svh max-h-svh w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-background p-0"
         >
           <div className="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3">
-            <p className="truncate text-sm font-medium">{documentTitle}</p>
-            <div className="flex items-center gap-2">
+            <p className="min-w-0 flex-1 truncate text-sm font-medium">{documentTitle}</p>
+            <div className="flex shrink-0 items-center gap-2">
               <Button
                 type="button"
                 variant="ghost"
@@ -135,7 +135,7 @@ export function ExpandedPreview({ content, documentTitle }: ExpandedPreviewProps
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
             <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
               {error ? (
                 <div className="rounded-2xl border border-dashed bg-card/60 px-6 py-12 text-center">

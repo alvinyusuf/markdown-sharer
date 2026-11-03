@@ -194,8 +194,8 @@ export function ExpandedPresentation({
           <DialogTitle className="sr-only">{documentTitle} — presentasi</DialogTitle>
 
           <div className="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3">
-            <p className="truncate text-sm font-medium">{documentTitle}</p>
-            <div className="flex items-center gap-2">
+            <p className="min-w-0 flex-1 truncate text-sm font-medium">{documentTitle}</p>
+            <div className="flex shrink-0 items-center gap-2">
               <Button
                 type="button"
                 variant="ghost"
@@ -222,7 +222,7 @@ export function ExpandedPresentation({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
             <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
               {status === "loading" ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -255,12 +255,12 @@ export function ExpandedPresentation({
             </div>
           </div>
 
-          <footer className="flex shrink-0 items-center justify-between gap-3 border-t bg-background/95 px-4 py-3 backdrop-blur">
+          <footer className="flex shrink-0 flex-col items-stretch gap-2 border-t bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             <p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
               {section?.title ?? documentTitle}
             </p>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-2 sm:justify-start">
               <div className="mr-1 hidden items-center gap-2 sm:flex">
                 <span className="font-mono text-xs text-muted-foreground tabular-nums">
                   {total > 0 ? `${index + 1} / ${total}` : "—"}

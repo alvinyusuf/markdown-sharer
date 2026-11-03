@@ -60,15 +60,15 @@ export function DocumentList({ documents }: { documents: DocumentSummary[] }) {
 
           return (
             <li key={document.id}>
-              <div className="group grid gap-3 px-5 py-4 transition-colors hover:bg-muted/30 lg:grid-cols-[minmax(0,1fr)_100px_110px_250px] lg:items-center lg:gap-4">
-                <div className="flex min-w-0 items-start gap-3">
+              <div className="group grid grid-cols-2 gap-3 px-4 py-4 transition-colors hover:bg-muted/30 sm:px-5 lg:grid-cols-[minmax(0,1fr)_100px_110px_250px] lg:items-center lg:gap-4">
+                <div className="col-span-2 flex min-w-0 items-start gap-3 lg:col-span-1">
                   <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border bg-background">
                     <FileText className="size-4 text-muted-foreground" />
                   </span>
                   <div className="min-w-0">
                     <Link
                       href={`/dashboard/documents/${document.id}`}
-                      className="block truncate text-sm font-medium underline-offset-4 hover:underline"
+                      className="line-clamp-2 text-base font-medium wrap-anywhere underline-offset-4 hover:underline lg:block lg:truncate lg:text-sm"
                     >
                       {document.title}
                     </Link>
@@ -101,11 +101,12 @@ export function DocumentList({ documents }: { documents: DocumentSummary[] }) {
                   </Badge>
                 </div>
 
-                <p className="text-xs text-muted-foreground">
+                <p className="self-center text-right text-xs text-muted-foreground lg:text-left">
+                  <span className="lg:hidden">Updated </span>
                   {formatDate(document.updated_at)}
                 </p>
 
-                <div className="flex flex-wrap items-center justify-start gap-1.5 sm:justify-end">
+                <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 border-t pt-3 lg:col-span-1 lg:justify-end lg:gap-1.5 lg:border-0 lg:pt-0">
                   <LinkButton
                     variant="ghost"
                     size="sm"

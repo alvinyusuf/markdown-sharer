@@ -117,8 +117,8 @@ export default async function HomePage() {
     <>
       <section className="relative overflow-hidden">
         <div aria-hidden="true" className="landing-grid absolute inset-0 -z-10" />
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-4 pt-16 pb-20 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:gap-10 lg:px-8 lg:pt-24 lg:pb-28">
-          <div className="max-w-2xl">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-9 pb-12 sm:gap-14 sm:px-6 sm:pt-16 sm:pb-20 lg:grid-cols-[1.02fr_0.98fr] lg:gap-10 lg:px-8 lg:pt-24 lg:pb-28">
+          <div className="max-w-2xl min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full border bg-card/80 py-1 pr-3 pl-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
               <span className="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <Sparkles className="size-3" />
@@ -126,11 +126,11 @@ export default async function HomePage() {
               Markdown → a page worth sharing
             </div>
 
-            <h1 className="mt-6 font-serif text-5xl leading-[1.04] font-semibold tracking-[-0.03em] text-balance sm:text-6xl lg:text-[4.2rem]">
+            <h1 className="mt-5 font-serif text-[clamp(2.25rem,9vw,3rem)] leading-[1.08] font-semibold tracking-[-0.03em] text-balance sm:mt-6 sm:text-6xl lg:text-[4.2rem]">
               Turn plain Markdown into a page people actually read.
             </h1>
 
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:mt-6 sm:text-lg">
               Upload a file, check the preview, and send a link. Your reader only needs a
               browser — no editor, no account, no setup.
             </p>
@@ -189,7 +189,7 @@ export default async function HomePage() {
             </ul>
           </div>
 
-          <div className="relative lg:pl-4">
+          <div className="relative min-w-0 lg:pl-4">
             <div
               aria-hidden="true"
               className="absolute -inset-6 -z-10 rounded-[2rem] bg-blue-900/[0.04] blur-2xl"
@@ -212,9 +212,9 @@ export default async function HomePage() {
                 aria-label="Sample Markdown document"
                 aria-describedby="sample-scroll-hint"
                 tabIndex={0}
-                className="thin-scrollbar max-h-[520px] overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                className="thin-scrollbar max-h-[min(60svh,420px)] overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring sm:max-h-[520px]"
               >
-                <div className="prose-doc prose-sample prose max-w-none px-6 py-7 sm:px-9">
+                <div className="prose-doc prose-sample prose max-w-none px-4 py-5 sm:px-9 sm:py-7">
                   {sample}
                 </div>
               </div>
@@ -236,7 +236,7 @@ export default async function HomePage() {
       </section>
 
       <section id="how-it-works" className="scroll-mt-20 border-y bg-card/50">
-        <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
           <div className="max-w-2xl">
             <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
               Three steps from file to readable page.
@@ -261,7 +261,7 @@ export default async function HomePage() {
 
       <section
         id="features"
-        className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6 lg:px-8"
+        className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-12 sm:px-6 sm:py-20 lg:px-8"
       >
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div className="max-w-2xl">
@@ -290,9 +290,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="px-4 pb-20 sm:px-6 lg:px-8">
+      <section className="px-4 pb-12 sm:px-6 sm:pb-20 lg:px-8">
         <div className="mx-auto w-full max-w-6xl overflow-hidden rounded-3xl border bg-primary text-primary-foreground">
-          <div className="relative px-6 py-14 sm:px-12 sm:py-16">
+          <div className="relative px-5 py-9 sm:px-12 sm:py-16">
             <div
               aria-hidden="true"
               className="absolute inset-0 bg-[radial-gradient(70%_120%_at_85%_0%,oklch(0.45_0.08_160/55%),transparent_65%)]"
@@ -308,7 +308,7 @@ export default async function HomePage() {
               </div>
               <LinkButton
                 size="lg"
-                className="h-11 bg-white px-5 text-[15px] text-primary hover:bg-white/90"
+                className="h-11 w-full bg-white px-5 text-[15px] text-primary hover:bg-white/90 sm:w-auto"
                 href="/signup"
               >
                 Create an account

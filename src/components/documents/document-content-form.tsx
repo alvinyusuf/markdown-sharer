@@ -102,7 +102,7 @@ export function DocumentContentForm({
 
       <div className="overflow-hidden rounded-2xl border bg-card">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b bg-muted/40 px-4 py-3">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <FileText className="size-3.5" />
             <span className="font-mono">
               {byteLength > 0 ? formatBytes(byteLength) : "0 B"}
@@ -144,7 +144,7 @@ export function DocumentContentForm({
           value={content}
           onChange={(event) => setContent(event.target.value)}
           spellCheck={false}
-          className="thin-scrollbar min-h-[520px] w-full resize-y bg-transparent px-5 py-4 font-mono text-[13px] leading-relaxed outline-none focus-visible:ring-3 focus-visible:ring-ring/20 focus-visible:ring-inset"
+          className="thin-scrollbar min-h-[50svh] w-full resize-y bg-transparent px-4 py-4 font-mono text-base leading-relaxed outline-none focus-visible:ring-3 focus-visible:ring-ring/20 focus-visible:ring-inset sm:min-h-[520px] sm:px-5 sm:text-sm"
         />
       </div>
 
