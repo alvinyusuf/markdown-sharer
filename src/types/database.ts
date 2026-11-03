@@ -2,12 +2,14 @@ export type DocumentStatus = "draft" | "published";
 
 export type DocumentRow = {
   id: string;
-  owner_id: string;
+  owner_id: string | null;
   title: string;
   slug: string;
   description: string | null;
   content: string;
   status: DocumentStatus;
+  is_demo: boolean;
+  expires_at: string | null;
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -15,12 +17,14 @@ export type DocumentRow = {
 
 export type DocumentInsert = {
   id?: string;
-  owner_id: string;
+  owner_id?: string | null;
   title: string;
   slug: string;
   description?: string | null;
   content: string;
   status?: DocumentStatus;
+  is_demo?: boolean;
+  expires_at?: string | null;
   created_at?: string;
   updated_at?: string;
   published_at?: string | null;
@@ -28,12 +32,14 @@ export type DocumentInsert = {
 
 export type DocumentUpdate = {
   id?: string;
-  owner_id?: string;
+  owner_id?: string | null;
   title?: string;
   slug?: string;
   description?: string | null;
   content?: string;
   status?: DocumentStatus;
+  is_demo?: boolean;
+  expires_at?: string | null;
   created_at?: string;
   updated_at?: string;
   published_at?: string | null;
@@ -80,6 +86,8 @@ export type PublicDocument = Pick<
   | "slug"
   | "description"
   | "content"
+  | "is_demo"
+  | "expires_at"
   | "created_at"
   | "updated_at"
   | "published_at"

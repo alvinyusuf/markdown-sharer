@@ -3,7 +3,10 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { documentCacheTag } from "@/lib/documents/cache";
-import { getPublishedDocumentTree } from "@/lib/documents/public-queries";
+import {
+  getPublishedDocument,
+  getPublishedDocumentTree,
+} from "@/lib/documents/public-queries";
 import { splitIntoSections, type DocumentSection } from "@/lib/markdown/sections";
 
 /**
@@ -14,7 +17,7 @@ import { splitIntoSections, type DocumentSection } from "@/lib/markdown/sections
  * itself, which means publishing, unpublishing, or deleting a document
  * invalidates the sections as well.
  */
-export async function getPublishedSections(
+async function getCachedPublishedSections(
   slug: string,
 ): Promise<DocumentSection[] | null> {
   "use cache";
@@ -28,4 +31,11 @@ export async function getPublishedSections(
   }
 
   return splitIntoSections(tree);
+}
+
+export async function getPublishedSections(
+  slug: string,
+): Promise<DocumentSection[] | null> {
+  if (!(await getPublishedDocument(slug))) return null;
+  return getCachedPublishedSections(slug);
 }

@@ -9,7 +9,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import type { PublicDocument } from "@/types/database";
 
 const PUBLIC_COLUMNS =
-  "id, title, slug, description, content, created_at, updated_at, published_at";
+  "id, title, slug, description, content, is_demo, expires_at, created_at, updated_at, published_at";
 
 /**
  * Reads a published document by slug.
@@ -21,7 +21,7 @@ const PUBLIC_COLUMNS =
  * The result is cached per slug and invalidated with `updateTag()` from the
  * publish, unpublish, and update actions.
  */
-export async function getPublishedDocument(slug: string): Promise<PublicDocument | null> {
+async function getCachedPublishedDocument(slug: string): Promise<PublicDocument | null> {
   "use cache";
   cacheLife({ stale: 60, revalidate: 300, expire: 3600 });
   cacheTag(documentCacheTag(slug));
@@ -44,6 +44,15 @@ export async function getPublishedDocument(slug: string): Promise<PublicDocument
   return (data as PublicDocument | null) ?? null;
 }
 
+// Check expiration on every request, even when the database row is cached.
+export async function getPublishedDocument(slug: string): Promise<PublicDocument | null> {
+  const document = await getCachedPublishedDocument(slug);
+  return document &&
+    (!document.expires_at || Date.parse(document.expires_at) > Date.now())
+    ? document
+    : null;
+}
+
 /**
  * Renders the sanitized Markdown tree for a published document.
  *
@@ -51,7 +60,7 @@ export async function getPublishedDocument(slug: string): Promise<PublicDocument
  * does not re-run the Markdown pipeline on every request. It is plain JSON,
  * which is what the cache requires.
  */
-export async function getPublishedDocumentTree(slug: string): Promise<Root | null> {
+async function getCachedPublishedDocumentTree(slug: string): Promise<Root | null> {
   "use cache";
   cacheLife({ stale: 60, revalidate: 300, expire: 3600 });
   cacheTag(documentCacheTag(slug));
@@ -69,4 +78,9 @@ export async function getPublishedDocumentTree(slug: string): Promise<Root | nul
     // down. The page shows a friendly message instead.
     return null;
   }
+}
+
+export async function getPublishedDocumentTree(slug: string): Promise<Root | null> {
+  if (!(await getPublishedDocument(slug))) return null;
+  return getCachedPublishedDocumentTree(slug);
 }

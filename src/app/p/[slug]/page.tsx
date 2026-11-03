@@ -44,7 +44,10 @@ export async function generateMetadata(props: PageProps<"/p/[slug]">): Promise<M
     return NOT_FOUND_METADATA;
   }
 
-  return buildDocumentMetadata(document);
+  const metadata = buildDocumentMetadata(document);
+  return document.is_demo
+    ? { ...metadata, robots: { index: false, follow: false } }
+    : metadata;
 }
 
 export default async function PublicDocumentPage(props: PageProps<"/p/[slug]">) {
@@ -70,6 +73,16 @@ export default async function PublicDocumentPage(props: PageProps<"/p/[slug]">) 
 
   return (
     <article className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      {document.is_demo && document.expires_at ? (
+        <aside className="mb-6 rounded-xl border bg-muted/50 p-4 text-sm text-muted-foreground">
+          Temporary guest document. Automatically deleted on{" "}
+          <time dateTime={document.expires_at}>
+            {new Date(document.expires_at).toLocaleString("en-US", { timeZone: "UTC" })}{" "}
+            UTC
+          </time>
+          .
+        </aside>
+      ) : null}
       <header className="mb-10 border-b pb-8">
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           {document.published_at ? (

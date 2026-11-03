@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, updateTag } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import type { ActionResult } from "@/lib/action-result";
@@ -8,6 +9,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { documentCacheTag } from "@/lib/documents/cache";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { generateSlug, isValidSlug } from "@/lib/slug/slug";
+import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type { CreateDocumentInput } from "@/lib/validation/schemas";
 import {
@@ -128,6 +130,84 @@ export async function createDraftAction(
     if (!error && data) {
       revalidatePath("/dashboard");
       redirect(`/dashboard/documents/${data.id}`);
+    }
+
+    lastError = { message: error?.message ?? "Unknown insert error", code: error?.code };
+
+    if (!isSlugConflict(error?.code)) {
+      break;
+    }
+  }
+
+  return {
+    ok: false,
+    message: mapDatabaseError(lastError?.message ?? ""),
+  };
+}
+
+/**
+ * Creates an anonymous demo document that is automatically published and expires
+ * after 24 hours. Does not require login.
+ */
+export async function createDemoDocumentAction(
+  input: CreateDocumentInput,
+): Promise<ActionResult> {
+  const parsed = createDocumentInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message: "Check the document details and try again.",
+      fieldErrors: fieldErrors(parsed.error),
+    };
+  }
+
+  const headerList = await headers();
+  const ip = headerList.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
+
+  const limit = checkRateLimit(`create-demo:${ip}`, {
+    limit: 5,
+    windowMs: 10 * 60 * 1000,
+  });
+
+  if (!limit.ok) {
+    return {
+      ok: false,
+      message:
+        "You're uploading demo documents too quickly. Wait a few minutes and try again.",
+    };
+  }
+
+  const supabase = createPublicClient();
+  const baseSlug = generateSlug(parsed.data.title);
+  let lastError: { message: string; code?: string } | null = null;
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+
+  for (let attempt = 0; attempt < SLUG_ATTEMPTS; attempt += 1) {
+    const slug = attempt === 0 ? baseSlug : generateSlug(parsed.data.title);
+    if (!isValidSlug(slug)) {
+      continue;
+    }
+
+    const { data, error } = await supabase
+      .from("documents")
+      .insert({
+        owner_id: null,
+        title: parsed.data.title,
+        description: parsed.data.description || null,
+        content: parsed.data.content,
+        slug,
+        status: "published",
+        is_demo: true,
+        expires_at: expiresAt,
+        published_at: now.toISOString(),
+      })
+      .select("id, slug")
+      .single();
+
+    if (!error && data) {
+      revalidatePublicDocument(data.slug);
+      redirect(`/p/${data.slug}`);
     }
 
     lastError = { message: error?.message ?? "Unknown insert error", code: error?.code };

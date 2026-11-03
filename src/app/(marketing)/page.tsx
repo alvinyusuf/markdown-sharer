@@ -149,9 +149,9 @@ export default async function HomePage() {
                 variant="ghost"
                 size="lg"
                 className="h-11 px-4 text-[15px]"
-                href="#how-it-works"
+                href="/try"
               >
-                See how it works
+                Try without signing in
                 <ArrowRight className="size-4" />
               </LinkButton>
             </div>
@@ -251,8 +251,8 @@ export default async function HomePage() {
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Readmeo is a publisher and viewer, not another editor. Keep writing in
-            the tools you already use.
+            Readmeo is a publisher and viewer, not another editor. Keep writing in the
+            tools you already use.
           </p>
         </div>
 

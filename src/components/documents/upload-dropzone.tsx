@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createDraftAction } from "@/lib/documents/actions";
+import { createDemoDocumentAction, createDraftAction } from "@/lib/documents/actions";
 import {
   MAX_DESCRIPTION_LENGTH,
   MAX_FILE_SIZE_BYTES,
@@ -29,7 +29,7 @@ type SelectedFile = {
 
 type ReadingState = "idle" | "reading" | "ready";
 
-export function UploadDropzone() {
+export function UploadDropzone({ demo = false }: { demo?: boolean }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [readingState, setReadingState] = useState<ReadingState>("idle");
@@ -118,7 +118,8 @@ export function UploadDropzone() {
     setError(null);
 
     startTransition(async () => {
-      const result = await createDraftAction({
+      const createAction = demo ? createDemoDocumentAction : createDraftAction;
+      const result = await createAction({
         title: title.trim(),
         description: description.trim(),
         content: file.content,
@@ -250,7 +251,7 @@ export function UploadDropzone() {
               placeholder="Document title"
             />
             <p className="text-xs text-muted-foreground">
-              Suggested from the file name. You can change it any time.
+              Suggested from the file name. Choose a title before uploading.
             </p>
           </div>
 
@@ -276,7 +277,9 @@ export function UploadDropzone() {
 
       <div className="flex flex-col-reverse items-stretch justify-between gap-3 sm:flex-row sm:items-center">
         <p className="text-xs text-muted-foreground">
-          This creates a private draft. Nothing is public yet.
+          {demo
+            ? "Creates a public link. Automatically deleted after 24 hours."
+            : "This creates a private draft. Nothing is public yet."}
         </p>
         <Button
           type="submit"
@@ -286,8 +289,10 @@ export function UploadDropzone() {
           {pending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Creating draft…
+              {demo ? "Uploading document…" : "Creating draft…"}
             </>
+          ) : demo ? (
+            "Upload & preview"
           ) : (
             "Create draft & preview"
           )}

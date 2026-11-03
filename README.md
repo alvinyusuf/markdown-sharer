@@ -259,6 +259,17 @@ tests/
 
 ## Deployment
 
+Guest uploads are available at `/try`, linked from the landing page. They use the
+same Markdown renderer, sharing controls, and presentation viewer. Guest links are
+public and expire after 24 hours; creating an account is required for persistent drafts.
+
+Apply `supabase/migrations/20261031000001_add_demo_documents.sql` before using guest
+uploads. This migration requires Supabase Cron (`pg_cron`) and schedules
+`delete-expired-demo-documents` every minute. RLS and request-time checks stop
+access at the expiry timestamp; physical deletion follows within one minute.
+Check the job in Supabase Cron after migration. The existing in-memory upload
+rate limiter is per application process, not a distributed quota.
+
 Set the same three environment variables in Vercel, update the Supabase Site URL and
 redirect URLs to the production domain, and run `supabase db push` against the
 production project before the first deploy.
