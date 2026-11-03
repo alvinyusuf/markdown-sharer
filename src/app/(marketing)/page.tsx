@@ -5,6 +5,7 @@ import {
   Code2,
   FileText,
   Link2,
+  LockKeyhole,
   MonitorPlay,
   ShieldCheck,
   Smartphone,
@@ -187,6 +188,15 @@ export default async function HomePage() {
                 No account needed to read
               </li>
             </ul>
+
+            <a
+              href="#security"
+              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-md text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+            >
+              <ShieldCheck aria-hidden="true" className="size-4 shrink-0" />
+              AES-256-GCM encryption at rest
+              <ArrowRight aria-hidden="true" className="size-3.5 shrink-0" />
+            </a>
           </div>
 
           <div className="relative min-w-0 lg:pl-4">
@@ -231,6 +241,63 @@ export default async function HomePage() {
               </span>
               Rendered safely
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="security"
+        aria-labelledby="security-heading"
+        className="scroll-mt-20 border-t bg-accent/40"
+      >
+        <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_1.1fr] lg:gap-16 lg:px-8">
+          <div>
+            <LockKeyhole aria-hidden="true" className="mb-5 size-7 text-primary" />
+            <h2
+              id="security-heading"
+              className="max-w-md font-serif text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
+            >
+              Easy to share. Encrypted when stored.
+            </h2>
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Your Markdown content is encrypted on our server with AES-256-GCM before it
+              reaches the database. Protection is built into every account and guest
+              upload, with no extra setup.
+            </p>
+          </div>
+          <div>
+            <dl className="divide-y border-y">
+              <div className="py-5">
+                <dt className="text-sm font-semibold">Encrypted content at rest</dt>
+                <dd className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  The database stores encrypted document content. Encryption keys stay on
+                  the server, separate from the database.
+                </dd>
+              </div>
+              <div className="py-5">
+                <dt className="text-sm font-semibold">
+                  Integrity checked before reading
+                </dt>
+                <dd className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  Authentication checks detect changes to encrypted content. Content that
+                  fails verification is never rendered.
+                </dd>
+              </div>
+              <div className="py-5">
+                <dt className="text-sm font-semibold">
+                  You choose when drafts go public
+                </dt>
+                <dd className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  Account drafts stay private until you publish. Guest uploads create
+                  public links that expire after 24 hours.
+                </dd>
+              </div>
+            </dl>
+            <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+              This is server-side encryption, not end-to-end encryption. Readmeo decrypts
+              content to display it. Published documents are readable by anyone with the
+              link; titles and other metadata are not encrypted.
+            </p>
           </div>
         </div>
       </section>

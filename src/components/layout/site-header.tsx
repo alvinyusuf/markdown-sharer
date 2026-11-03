@@ -86,6 +86,12 @@ export function SiteHeader() {
             >
               Features
             </Link>
+            <Link
+              href="/#security"
+              className="flex min-h-11 items-center rounded-md px-3 transition-colors hover:bg-muted hover:text-foreground md:px-0 md:hover:bg-transparent"
+            >
+              Security
+            </Link>
           </nav>
           <div className="border-t pt-4 md:border-0 md:pt-0">
             <Suspense fallback={<HeaderAuthFallback />}>
