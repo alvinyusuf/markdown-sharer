@@ -14,7 +14,7 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
-import { randomUUID } from "node:crypto";
+import { createCipheriv, randomBytes, randomUUID } from "node:crypto";
 
 try {
   process.loadEnvFile(".env.local");
@@ -32,6 +32,53 @@ if (!url || !anonKey) {
   process.exit(1);
 }
 
+if (process.env.RLS_TEST_CONFIRM_NON_PRODUCTION !== "yes") {
+  console.error(
+    "Set RLS_TEST_CONFIRM_NON_PRODUCTION=yes only for an isolated test database.",
+  );
+  process.exit(1);
+}
+function encryptedFixture(id, owner_id, content) {
+  const keyId = process.env.DOCUMENT_ENCRYPTION_ACTIVE_KEY_ID;
+  const variables = {
+    v1: "DOCUMENT_ENCRYPTION_KEY_V1",
+    v2: "DOCUMENT_ENCRYPTION_KEY_V2",
+  };
+  const value = Object.hasOwn(variables, keyId)
+    ? process.env[variables[keyId]]
+    : undefined;
+  const key = Buffer.from(value || "", "base64");
+  if (key.length !== 32 || key.toString("base64") !== value)
+    throw new Error("Invalid test encryption configuration");
+  const bytes = Buffer.from(content);
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  cipher.setAAD(
+    Buffer.from(
+      JSON.stringify([
+        "readmeo:document-content",
+        1,
+        keyId,
+        id,
+        owner_id,
+        false,
+        bytes.length,
+      ]),
+    ),
+  );
+  const ciphertext = Buffer.concat([cipher.update(bytes), cipher.final()]);
+  return {
+    id,
+    content_size_bytes: bytes.length,
+    content_encrypted: {
+      version: 1,
+      key_id: keyId,
+      iv: iv.toString("base64"),
+      tag: cipher.getAuthTag().toString("base64"),
+      ciphertext: ciphertext.toString("base64"),
+    },
+  };
+}
 let failures = 0;
 
 function check(name, condition) {
@@ -97,7 +144,11 @@ async function main() {
       owner_id: a.userId,
       title,
       slug,
-      content: "# Private draft\n\nOnly the owner should see this.",
+      ...encryptedFixture(
+        randomUUID(),
+        a.userId,
+        "# Private draft\n\nOnly the owner should see this.",
+      ),
       status: "draft",
     })
     .select("id")
@@ -112,7 +163,7 @@ async function main() {
     owner_id: a.userId,
     title: "Anonymous insert",
     slug: `${slug}-anon`,
-    content: "nope",
+    ...encryptedFixture(randomUUID(), a.userId, "nope"),
     status: "draft",
   });
   check("anonymous insert is rejected", Boolean(anonInsertError));
@@ -171,7 +222,7 @@ async function main() {
 
   const anonPublishedBySlug = await anon
     .from("documents")
-    .select("id, title, slug, content")
+    .select("id, title, slug, content_encrypted")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
@@ -254,7 +305,7 @@ async function main() {
   console.log("\nAll RLS checks passed.");
 }
 
-main().catch((error) => {
-  console.error(`\nRLS test failed: ${error.message}`);
+main().catch(() => {
+  console.error("RLS_TEST_FAILED");
   process.exit(1);
 });

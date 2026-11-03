@@ -1,4 +1,5 @@
 import "server-only";
+import { decryptDocumentContent } from "@/lib/crypto/document-content";
 
 import { cacheLife, cacheTag } from "next/cache";
 import type { Root } from "hast";
@@ -9,7 +10,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import type { PublicDocument } from "@/types/database";
 
 const PUBLIC_COLUMNS =
-  "id, title, slug, description, content, is_demo, expires_at, created_at, updated_at, published_at";
+  "id, title, slug, description, owner_id, content_encrypted, content_size_bytes, is_demo, expires_at, created_at, updated_at, published_at";
 
 /**
  * Reads a published document by slug.
@@ -18,14 +19,9 @@ const PUBLIC_COLUMNS =
  * in while opening a public link must not be able to read a draft through
  * this route, and the anon key is the only credential that can do that.
  *
- * The result is cached per slug and invalidated with `updateTag()` from the
- * publish, unpublish, and update actions.
+ * Authorization and decryption run on every read; only derived rendering is cached.
  */
-async function getCachedPublishedDocument(slug: string): Promise<PublicDocument | null> {
-  "use cache";
-  cacheLife({ stale: 60, revalidate: 300, expire: 3600 });
-  cacheTag(documentCacheTag(slug));
-
+async function readPublishedDocument(slug: string): Promise<PublicDocument | null> {
   const supabase = createPublicClient();
 
   const { data, error } = await supabase
@@ -36,17 +32,25 @@ async function getCachedPublishedDocument(slug: string): Promise<PublicDocument 
     .maybeSingle();
 
   if (error) {
-    // Never log document content, only the database message.
-    console.error("[public-document] lookup failed:", error.message);
-    return null;
+    throw new Error("Could not load this document.");
   }
-
-  return (data as PublicDocument | null) ?? null;
+  if (!data || (data.expires_at && Date.parse(data.expires_at) <= Date.now()))
+    return null;
+  const { owner_id, content_encrypted, content_size_bytes, ...document } = data;
+  return {
+    ...document,
+    content: decryptDocumentContent(content_encrypted, {
+      id: data.id,
+      owner_id,
+      is_demo: data.is_demo,
+      content_size_bytes,
+    }),
+  };
 }
 
-// Check expiration on every request, even when the database row is cached.
+// Never cache the access decision or owner plaintext.
 export async function getPublishedDocument(slug: string): Promise<PublicDocument | null> {
-  const document = await getCachedPublishedDocument(slug);
+  const document = await readPublishedDocument(slug);
   return document &&
     (!document.expires_at || Date.parse(document.expires_at) > Date.now())
     ? document

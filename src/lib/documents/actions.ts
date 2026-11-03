@@ -1,5 +1,8 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
+import { encryptDocumentContent } from "@/lib/crypto/document-content";
+
 import { revalidatePath, updateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -104,6 +107,20 @@ export async function createDraftAction(
     };
   }
 
+  const id = randomUUID();
+  let encrypted;
+  try {
+    encrypted = encryptDocumentContent(parsed.data.content, {
+      id,
+      owner_id: user.id,
+      is_demo: false,
+    });
+  } catch {
+    return {
+      ok: false,
+      message: "Document encryption is unavailable. Contact the operator.",
+    };
+  }
   const baseSlug = generateSlug(parsed.data.title);
   let lastError: { message: string; code?: string } | null = null;
 
@@ -119,7 +136,8 @@ export async function createDraftAction(
         owner_id: user.id,
         title: parsed.data.title,
         description: parsed.data.description || null,
-        content: parsed.data.content,
+        id,
+        ...encrypted,
         slug,
         status: "draft",
         published_at: null,
@@ -178,6 +196,20 @@ export async function createDemoDocumentAction(
   }
 
   const supabase = createPublicClient();
+  const id = randomUUID();
+  let encrypted;
+  try {
+    encrypted = encryptDocumentContent(parsed.data.content, {
+      id,
+      owner_id: null,
+      is_demo: true,
+    });
+  } catch {
+    return {
+      ok: false,
+      message: "Document encryption is unavailable. Contact the operator.",
+    };
+  }
   const baseSlug = generateSlug(parsed.data.title);
   let lastError: { message: string; code?: string } | null = null;
   const now = new Date();
@@ -195,7 +227,8 @@ export async function createDemoDocumentAction(
         owner_id: null,
         title: parsed.data.title,
         description: parsed.data.description || null,
-        content: parsed.data.content,
+        id,
+        ...encrypted,
         slug,
         status: "published",
         is_demo: true,
@@ -291,9 +324,26 @@ export async function updateDocumentContentAction(input: {
   }
 
   const supabase = await createClient();
+  const { data: context, error: contextError } = await supabase
+    .from("documents")
+    .select("id, owner_id, is_demo")
+    .eq("id", parsed.data.documentId)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+  if (contextError) return { ok: false, message: "Could not load this document." };
+  if (!context) return { ok: false, message: "Document not found." };
+  let encrypted;
+  try {
+    encrypted = encryptDocumentContent(parsed.data.content, context);
+  } catch {
+    return {
+      ok: false,
+      message: "Document encryption is unavailable. Contact the operator.",
+    };
+  }
   const { data, error } = await supabase
     .from("documents")
-    .update({ content: parsed.data.content })
+    .update(encrypted)
     .eq("id", parsed.data.documentId)
     .eq("owner_id", user.id)
     .select("id, slug")

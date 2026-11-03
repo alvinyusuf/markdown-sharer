@@ -22,7 +22,7 @@ export async function isPublishedDocument(slug: string): Promise<boolean> {
   if (error) {
     // Fail open. A temporary database problem should not turn a public link
     // into a hard 404; the page renders its own message instead.
-    console.error("[public-document] proxy lookup failed:", error.message);
+    console.error("DOCUMENT_LOOKUP_UNAVAILABLE");
     return true;
   }
 

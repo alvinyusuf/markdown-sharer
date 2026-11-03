@@ -35,7 +35,7 @@ describe("public document urls", () => {
 
 describe("cache tags", () => {
   it("derives a stable tag from the slug", () => {
-    expect(documentCacheTag("abc-123")).toBe("document:abc-123");
+    expect(documentCacheTag("abc-123")).toBe("document:encrypted-v1:abc-123");
     expect(documentCacheTag("abc-123")).toBe(documentCacheTag("abc-123"));
   });
 });

@@ -5,7 +5,7 @@
  * created. Publishing, unpublishing, or editing a document therefore only has
  * to expire one tag to make the public URL correct again.
  */
-export const DOCUMENT_CACHE_TAG_PREFIX = "document:";
+export const DOCUMENT_CACHE_TAG_PREFIX = "document:encrypted-v1:";
 
 export function documentCacheTag(slug: string): string {
   return `${DOCUMENT_CACHE_TAG_PREFIX}${slug}`;

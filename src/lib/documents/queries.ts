@@ -1,4 +1,5 @@
 import "server-only";
+import { decryptDocumentContent } from "@/lib/crypto/document-content";
 
 import { createClient } from "@/lib/supabase/server";
 import type { DocumentRow, DocumentSummary } from "@/types/database";
@@ -38,7 +39,15 @@ export async function getOwnDocument(
     throw new Error("Could not load this document.");
   }
 
-  return data;
+  if (!data) return null;
+  const { content_encrypted, content_size_bytes, ...document } = data;
+  return {
+    ...document,
+    content: decryptDocumentContent(content_encrypted, {
+      ...document,
+      content_size_bytes,
+    }),
+  };
 }
 
 export async function countOwnDocuments(userId: string): Promise<number> {

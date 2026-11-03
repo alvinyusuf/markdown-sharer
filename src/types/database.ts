@@ -15,41 +15,29 @@ export type DocumentRow = {
   published_at: string | null;
 };
 
-export type DocumentInsert = {
-  id?: string;
-  owner_id?: string | null;
-  title: string;
-  slug: string;
-  description?: string | null;
-  content: string;
-  status?: DocumentStatus;
-  is_demo?: boolean;
-  expires_at?: string | null;
-  created_at?: string;
-  updated_at?: string;
-  published_at?: string | null;
+export type StoredDocumentRow = Omit<DocumentRow, "content"> & {
+  content_encrypted: import("@/lib/crypto/document-content").ContentEnvelope;
+  content_size_bytes: number;
 };
-
-export type DocumentUpdate = {
-  id?: string;
-  owner_id?: string | null;
-  title?: string;
-  slug?: string;
-  description?: string | null;
-  content?: string;
-  status?: DocumentStatus;
-  is_demo?: boolean;
-  expires_at?: string | null;
-  created_at?: string;
-  updated_at?: string;
-  published_at?: string | null;
-};
+export type DocumentInsert = Pick<
+  StoredDocumentRow,
+  "id" | "title" | "slug" | "content_encrypted" | "content_size_bytes"
+> &
+  Partial<
+    Omit<
+      StoredDocumentRow,
+      "id" | "title" | "slug" | "content_encrypted" | "content_size_bytes"
+    >
+  >;
+export type DocumentUpdate = Partial<
+  Omit<StoredDocumentRow, "id" | "owner_id" | "is_demo">
+>;
 
 export type Database = {
   public: {
     Tables: {
       documents: {
-        Row: DocumentRow;
+        Row: StoredDocumentRow;
         Insert: DocumentInsert;
         Update: DocumentUpdate;
         Relationships: [];

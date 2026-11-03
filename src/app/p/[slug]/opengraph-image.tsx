@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { notFound } from "next/navigation";
 
 import { getPublishedDocument } from "@/lib/documents/public-queries";
 
@@ -18,6 +19,7 @@ export const contentType = "image/png";
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const document = await getPublishedDocument(slug);
+  if (!document) notFound();
 
   const title = document?.title ?? "Shared with Readmeo";
   const description = document?.description ?? undefined;
@@ -54,9 +56,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         >
           R
         </div>
-        <div style={{ display: "flex", fontSize: "26px", color: "#5d5a52" }}>
-          Readmeo
-        </div>
+        <div style={{ display: "flex", fontSize: "26px", color: "#5d5a52" }}>Readmeo</div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column" }}>

@@ -20,7 +20,12 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const sections = await getPublishedSections(parsed.data);
+  let sections;
+  try {
+    sections = await getPublishedSections(parsed.data);
+  } catch {
+    return NextResponse.json({ error: "Document service unavailable" }, { status: 503 });
+  }
 
   if (!sections) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });

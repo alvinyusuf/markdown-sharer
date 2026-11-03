@@ -43,20 +43,32 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 The anon/publishable key is safe to expose; RLS enforces access. **Never** put a
 service-role key in this project — the app does not need one.
 
-### Apply the database migration
+### Document encryption and database migration
 
-Either paste
-[`supabase/migrations/20261021000000_create_documents.sql`](./supabase/migrations/20261021000000_create_documents.sql)
-into the Supabase SQL Editor, or link the CLI and push:
+Run `node scripts/generate-document-key.mjs` once to provision a random 32-byte
+key in ignored `.env.local`; it never prints the key and refuses overwrite.
+Keep a protected backup. Configure `DOCUMENT_ENCRYPTION_ACTIVE_KEY_ID` and
+`DOCUMENT_ENCRYPTION_KEY_V1` as server-only Sensitive variables in Vercel.
+Use separate keys for separate databases; redeployments sharing a database need
+the same keyring. No key is generated during startup or build.
 
-```bash
-supabase login
-supabase link --project-ref <your-project-ref>
-supabase db push
-```
+Apply migrations in timestamp order to a new isolated Supabase database.
+For an existing database, **the encryption migration deletes every document**
+(drafts, published, and guest), preserving Auth users. Old application builds are
+incompatible with the new schema. Stop all old traffic and writes before applying
+`20261103000000_encrypt_document_content.sql`; do not run `supabase db push`
+against an existing production database without a coordinated maintenance window.
 
-The migration creates the `documents` table, constraints, indexes, timestamp and limit
-triggers, and RLS policies.
+Follow [the rollout and recovery runbook](docs/markdown-encryption-rollout.md)
+for staging, RLS verification, cache purge, production cutover, and recovery.
+The repository change does not execute the migration or configure hosted secrets.
+
+Body content uses server-side AES-256-GCM before storage; metadata remains readable.
+This is not end-to-end encryption: the server and authorized readers can read the
+body, and public content may appear in HTML, excerpts, caches, or reader copies.
+Historical plaintext backups, exports, and logs require separate retention handling.
+Missing keys or invalid authentication tags stop document operations without a
+plaintext fallback. Losing all copies of a key makes its documents unrecoverable.
 
 ### Auth configuration
 
