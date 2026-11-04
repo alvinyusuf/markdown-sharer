@@ -1,5 +1,6 @@
 "use client";
 
+import { ZoomableDocument } from "@/components/documents/zoomable-document";
 import { Maximize2, Minimize2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -136,7 +137,7 @@ export function ExpandedPreview({ content, documentTitle }: ExpandedPreviewProps
           </div>
 
           <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
-            <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+            <div className="mx-auto w-full px-4 py-8 sm:px-6 sm:py-12">
               {error ? (
                 <div className="rounded-2xl border border-dashed bg-card/60 px-6 py-12 text-center">
                   <h2 className="font-serif text-xl font-semibold tracking-tight">
@@ -149,7 +150,9 @@ export function ExpandedPreview({ content, documentTitle }: ExpandedPreviewProps
               ) : null}
 
               {rendered ? (
-                <article className="prose-doc prose max-w-none">{rendered}</article>
+                <ZoomableDocument>
+                  <article className="prose-doc prose max-w-none">{rendered}</article>
+                </ZoomableDocument>
               ) : (
                 <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                   Memuat pratinjau…

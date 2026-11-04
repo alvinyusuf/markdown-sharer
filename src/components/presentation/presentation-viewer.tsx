@@ -1,5 +1,6 @@
 "use client";
 
+import { ZoomableDocument } from "@/components/documents/zoomable-document";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { toJsxRuntime } from "hast-util-to-jsx-runtime";
 import type { Root } from "hast";
@@ -130,7 +131,15 @@ export function PresentationViewer({
     }
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.metaKey || event.ctrlKey || event.altKey) {
+      if (
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        (event.target instanceof HTMLElement &&
+          event.target.closest(
+            "input, textarea, select, [contenteditable], [role=slider]",
+          ))
+      ) {
         return;
       }
 
@@ -203,7 +212,7 @@ export function PresentationViewer({
         </header>
 
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
-          <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+          <div className="mx-auto w-full px-4 py-8 sm:px-6 sm:py-12">
             {status === "loading" ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
@@ -225,13 +234,15 @@ export function PresentationViewer({
             ) : null}
 
             {status === "ready" && section ? (
-              <article
-                key={section.id}
-                className="prose-doc prose max-w-none"
-                aria-live="polite"
-              >
-                {renderSection(section.tree)}
-              </article>
+              <ZoomableDocument presentation>
+                <article
+                  key={section.id}
+                  className="prose-doc prose max-w-none"
+                  aria-live="polite"
+                >
+                  {renderSection(section.tree)}
+                </article>
+              </ZoomableDocument>
             ) : null}
           </div>
         </div>

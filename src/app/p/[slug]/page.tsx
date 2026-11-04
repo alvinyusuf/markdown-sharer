@@ -74,7 +74,7 @@ export default async function PublicDocumentPage(props: PageProps<"/p/[slug]">) 
   return (
     <article className="mx-auto w-full max-w-3xl min-w-0 px-4 py-6 sm:px-6 sm:py-14">
       {document.is_demo && document.expires_at ? (
-        <aside className="mb-6 rounded-xl border bg-muted/50 p-4 text-sm text-muted-foreground">
+        <aside className="mx-auto mb-6 max-w-[45rem] rounded-xl border bg-muted/50 p-4 text-sm text-muted-foreground">
           Temporary guest document. Automatically deleted on{" "}
           <time dateTime={document.expires_at}>
             {new Date(document.expires_at).toLocaleString("en-US", { timeZone: "UTC" })}{" "}
@@ -83,7 +83,7 @@ export default async function PublicDocumentPage(props: PageProps<"/p/[slug]">) 
           .
         </aside>
       ) : null}
-      <header className="mb-7 border-b pb-6 sm:mb-10 sm:pb-8">
+      <header className="mx-auto mb-7 max-w-[45rem] border-b pb-6 sm:mb-10 sm:pb-8">
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           {document.published_at ? (
             <span className="inline-flex items-center gap-1.5">
