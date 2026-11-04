@@ -12,7 +12,9 @@ import {
   Sparkles,
   Upload,
 } from "lucide-react";
+import { Suspense } from "react";
 
+import { getCurrentUser } from "@/lib/auth/session";
 import { renderMarkdown } from "@/lib/markdown/render";
 import { LinkButton } from "@/components/ui/link-button";
 
@@ -111,6 +113,81 @@ const features = [
   },
 ];
 
+async function HomeActions() {
+  const user = await getCurrentUser();
+
+  return (
+    <div className="mt-8 grid gap-5 sm:grid-cols-2">
+      <div className="space-y-2">
+        <LinkButton
+          size="lg"
+          className="h-11 w-full px-5 text-sm shadow-sm"
+          href="/dashboard/new"
+          aria-describedby="private-draft-note"
+        >
+          <Upload className="size-4" />
+          Create a private draft
+        </LinkButton>
+        <p
+          id="private-draft-note"
+          className="text-xs leading-relaxed text-muted-foreground"
+        >
+          {user
+            ? "Publish when you're ready."
+            : "Account required. Publish when you're ready."}
+        </p>
+      </div>
+      {!user && (
+        <div className="space-y-2">
+          <LinkButton
+            variant="outline"
+            size="lg"
+            className="h-11 w-full px-4 text-sm"
+            href="/try"
+            aria-describedby="guest-link-note"
+          >
+            Try without signing in
+            <ArrowRight className="size-4" />
+          </LinkButton>
+          <p
+            id="guest-link-note"
+            className="text-xs leading-relaxed text-muted-foreground"
+          >
+            Creates a public link that expires after 24 hours.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+async function HomeClosingContent() {
+  const user = await getCurrentUser();
+
+  return (
+    <div className="relative flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
+      <div className="max-w-2xl">
+        <h2 className="font-serif text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+          Your next document is already written. Make it easy to open.
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-primary-foreground/70 sm:text-base">
+          {user
+            ? "Upload a file, manage your drafts, and publish when you're ready."
+            : "Create an account, upload a file, and keep every draft in one place."}
+        </p>
+      </div>
+      <LinkButton
+        size="lg"
+        className="h-11 w-full bg-white px-5 text-[15px] text-primary hover:bg-white/90 sm:w-auto"
+        href={user ? "/dashboard" : "/signup"}
+      >
+        {user ? "Go to dashboard" : "Create an account"}
+        <ArrowUpRight className="size-4" />
+      </LinkButton>
+    </div>
+  );
+}
+
 export default async function HomePage() {
   const sample = await renderMarkdown(sampleMarkdown);
 
@@ -136,43 +213,17 @@ export default async function HomePage() {
               browser — no editor, no account, no setup.
             </p>
 
-            <div className="mt-8 grid gap-5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <LinkButton
-                  size="lg"
-                  className="h-11 w-full px-5 text-sm shadow-sm"
-                  href="/dashboard/new"
-                  aria-describedby="private-draft-note"
-                >
-                  <Upload className="size-4" />
-                  Create a private draft
-                </LinkButton>
-                <p
-                  id="private-draft-note"
-                  className="text-xs leading-relaxed text-muted-foreground"
-                >
-                  Account required. Publish when you&apos;re ready.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <LinkButton
-                  variant="outline"
-                  size="lg"
-                  className="h-11 w-full px-4 text-sm"
-                  href="/try"
-                  aria-describedby="guest-link-note"
-                >
-                  Try without signing in
-                  <ArrowRight className="size-4" />
-                </LinkButton>
-                <p
-                  id="guest-link-note"
-                  className="text-xs leading-relaxed text-muted-foreground"
-                >
-                  Creates a public link that expires after 24 hours.
-                </p>
-              </div>
-            </div>
+            <Suspense
+              fallback={
+                <div
+                  aria-busy="true"
+                  aria-label="Loading actions"
+                  className="mt-8 h-20"
+                />
+              }
+            >
+              <HomeActions />
+            </Suspense>
 
             <ul className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-1.5">
@@ -364,24 +415,17 @@ export default async function HomePage() {
               aria-hidden="true"
               className="absolute inset-0 bg-[radial-gradient(70%_120%_at_85%_0%,oklch(0.45_0.08_160/55%),transparent_65%)]"
             />
-            <div className="relative flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
-              <div className="max-w-2xl">
-                <h2 className="font-serif text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-                  Your next document is already written. Make it easy to open.
-                </h2>
-                <p className="mt-3 text-sm leading-relaxed text-primary-foreground/70 sm:text-base">
-                  Create an account, upload a file, and keep every draft in one place.
-                </p>
-              </div>
-              <LinkButton
-                size="lg"
-                className="h-11 w-full bg-white px-5 text-[15px] text-primary hover:bg-white/90 sm:w-auto"
-                href="/signup"
-              >
-                Create an account
-                <ArrowUpRight className="size-4" />
-              </LinkButton>
-            </div>
+            <Suspense
+              fallback={
+                <div
+                  aria-busy="true"
+                  aria-label="Loading actions"
+                  className="min-h-44 sm:min-h-28"
+                />
+              }
+            >
+              <HomeClosingContent />
+            </Suspense>
           </div>
         </div>
       </section>
