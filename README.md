@@ -278,10 +278,22 @@ public and expire after 24 hours; creating an account is required for persistent
 Apply `supabase/migrations/20261031000001_add_demo_documents.sql` before using guest
 uploads. This migration requires Supabase Cron (`pg_cron`) and schedules
 `delete-expired-demo-documents` every minute. RLS and request-time checks stop
-access at the expiry timestamp; physical deletion follows within one minute.
-Check the job in Supabase Cron after migration. The existing in-memory upload
+access at the expiry timestamp. Physical deletion depends on successful Cron
+execution; an every-minute schedule is not a one-minute deletion guarantee.
+Check the job and observe actual removal in Supabase Cron after migration. The existing in-memory upload
 rate limiter is per application process, not a distributed quota.
 
-Set the same three environment variables in Vercel, update the Supabase Site URL and
-redirect URLs to the production domain, and run `supabase db push` against the
-production project before the first deploy.
+Configure the three public environment variables and the server-only document
+keyring in the deployment environment; update Supabase Site URL and redirect URLs
+for that environment. Deployments sharing a database must use its compatible
+application/schema version and retained keyring.
+
+Before applying any migrations, follow the
+[rollout and recovery runbook](docs/markdown-encryption-rollout.md). Test the full
+migration sequence first on an explicitly disposable isolated database. The
+encryption migration deletes every existing document; **do not use a generic
+`supabase db push` as an existing-database upgrade or preservation procedure**.
+Existing databases require an approved maintenance/data disposition plan, a tested
+restore path, and coordinated application/schema cutover. If documents must be
+preserved, stop: this repository does not supply a preserving conversion. A code
+or documentation change does not authorize a production migration or deployment.
